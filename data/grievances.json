@@ -1,0 +1,291 @@
+[
+  {
+    "id": "HST-2026-0006",
+    "ticketNumber": "HST-2026-0006",
+    "studentId": "CS-2023-104",
+    "studentName": "Aditya Kumar",
+    "studentEmail": "student@hostel.edu",
+    "hostel": "Hall 1 (Boys)",
+    "room": "B-312",
+    "category": "Electrical",
+    "title": "Room main fluorescent tube light flickering violently",
+    "description": "The tube light in B-312 keeps flickering and making a loud humming sound since yesterday.",
+    "priority": "High",
+    "status": "In Progress",
+    "createdAt": "2026-10-12T04:53:13.073Z",
+    "deadline": "2026-10-13T04:53:13.073Z",
+    "assignedSupervisorId": "usr_sup_electrical",
+    "assignedSupervisorName": "Rajesh Verma",
+    "assignedProfessional": {
+      "name": "Ramesh Kumar (Electrician)",
+      "phone": "+91 98234 56789",
+      "expectedVisitTime": "Today at 3:00 PM",
+      "notes": "Please bring replacement fluorescent tube light and check ballast.",
+      "assignedAt": "2026-10-12T05:02:34.294Z"
+    },
+    "resolution": null,
+    "slaBreached": false,
+    "apologyEmailSent": false,
+    "timeline": [
+      {
+        "time": "2026-10-12T04:53:13.073Z",
+        "actor": "Aditya Kumar (Student)",
+        "action": "Complaint submitted on portal. 24-Hour SLA countdown initiated."
+      },
+      {
+        "time": "2026-10-12T04:53:14.073Z",
+        "actor": "System Router",
+        "action": "Assigned automatically to Rajesh Verma (Electrical Supervisor)."
+      },
+      {
+        "time": "2026-10-12T05:02:34.294Z",
+        "actor": "Rajesh Verma (Supervisor)",
+        "action": "Assigned offline technician: Ramesh Kumar (Electrician) (+91 98234 56789). Expected visit: Today at 3:00 PM."
+      }
+    ]
+  },
+  {
+    "id": "HST-2026-0001",
+    "ticketNumber": "HST-2026-0001",
+    "studentId": "CS-2023-104",
+    "studentName": "Aditya Kumar",
+    "studentEmail": "student@hostel.edu",
+    "hostel": "Hall 1 (Boys)",
+    "room": "B-312",
+    "category": "Electrical",
+    "title": "Study table light socket sparking and non-functional",
+    "description": "The primary electrical socket near the study desk makes buzzing noise and sparks when plugging in the laptop charger. High safety concern.",
+    "priority": "High",
+    "status": "Resolved",
+    "createdAt": "2026-10-11T14:30:00.000Z",
+    "deadline": "2026-10-12T14:30:00.000Z",
+    "assignedSupervisorId": "usr_sup_electrical",
+    "assignedSupervisorName": "Rajesh Verma",
+    "assignedProfessional": {
+      "name": "Ramesh Kumar (Electrician)",
+      "phone": "+91 98234 56789",
+      "expectedVisitTime": "2026-10-11T18:00:00.000Z",
+      "assignedAt": "2026-10-11T15:10:00.000Z",
+      "notes": "Replace 16A switch socket board and test earth grounding wire."
+    },
+    "resolution": {
+      "resolvedAt": "2026-10-11T19:15:00.000Z",
+      "notes": "Burnt switch module replaced with heavy-duty Anchor socket. Voltage and earthing verified. All clear.",
+      "resolvedBy": "Rajesh Verma"
+    },
+    "slaBreached": false,
+    "apologyEmailSent": false,
+    "timeline": [
+      {
+        "time": "2026-10-11T14:30:00.000Z",
+        "actor": "Aditya Kumar (Student)",
+        "action": "Complaint registered. 24-Hour SLA clock initiated."
+      },
+      {
+        "time": "2026-10-11T14:30:05.000Z",
+        "actor": "System Automation",
+        "action": "Confirmation email dispatched to student@hostel.edu."
+      },
+      {
+        "time": "2026-10-11T15:10:00.000Z",
+        "actor": "Rajesh Verma (Supervisor)",
+        "action": "Assigned Electrician Ramesh Kumar (+91 98234 56789) for 6:00 PM visit."
+      },
+      {
+        "time": "2026-10-11T17:45:00.000Z",
+        "actor": "Rajesh Verma (Supervisor)",
+        "action": "Status changed to In Progress (Technician on-site)."
+      },
+      {
+        "time": "2026-10-11T19:15:00.000Z",
+        "actor": "Rajesh Verma (Supervisor)",
+        "action": "Marked Resolved. Replaced burnt socket module."
+      }
+    ]
+  },
+  {
+    "id": "HST-2026-0002",
+    "ticketNumber": "HST-2026-0002",
+    "studentId": "CS-2023-104",
+    "studentName": "Aditya Kumar",
+    "studentEmail": "student@hostel.edu",
+    "hostel": "Hall 1 (Boys)",
+    "room": "B-312",
+    "category": "Plumbing",
+    "title": "Severe bathroom sink faucet leakage and continuous dripping",
+    "description": "Tap valve in the 3rd floor washroom adjacent to Room B-312 is leaking continuously, causing water wastage and slippery bathroom floor.",
+    "priority": "Normal",
+    "status": "In Progress",
+    "createdAt": "2026-10-12T00:30:00.000Z",
+    "deadline": "2026-10-13T00:30:00.000Z",
+    "assignedSupervisorId": "usr_sup_plumbing",
+    "assignedSupervisorName": "Suresh Patel",
+    "assignedProfessional": {
+      "name": "Satish Yadav (Plumber)",
+      "phone": "+91 98112 34567",
+      "expectedVisitTime": "2026-10-12T11:30:00.000Z",
+      "assignedAt": "2026-10-12T02:00:00.000Z",
+      "notes": "Bring replacement brass spindle and Teflon tape."
+    },
+    "resolution": null,
+    "slaBreached": false,
+    "apologyEmailSent": false,
+    "timeline": [
+      {
+        "time": "2026-10-12T00:30:00.000Z",
+        "actor": "Aditya Kumar (Student)",
+        "action": "Complaint registered. 24-Hour SLA clock initiated."
+      },
+      {
+        "time": "2026-10-12T00:30:05.000Z",
+        "actor": "System Automation",
+        "action": "Confirmation email dispatched to student@hostel.edu."
+      },
+      {
+        "time": "2026-10-12T02:00:00.000Z",
+        "actor": "Suresh Patel (Supervisor)",
+        "action": "Assigned Plumber Satish Yadav (+91 98112 34567) for 11:30 AM inspection."
+      }
+    ]
+  },
+  {
+    "id": "HST-2026-0003",
+    "ticketNumber": "HST-2026-0003",
+    "studentId": "EC-2023-088",
+    "studentName": "Priya Sen",
+    "studentEmail": "priya.sen@hostel.edu",
+    "hostel": "Hall 1 (Girls)",
+    "room": "A-205",
+    "category": "Carpentry",
+    "title": "Almirah door hinges broken and hanging dangerously",
+    "description": "The wooden wardrobe door hinge snapped off, making it impossible to close the locker. The door is heavy and risk of falling.",
+    "priority": "Urgent",
+    "status": "In Progress",
+    "createdAt": "2026-10-11T07:00:00.000Z",
+    "deadline": "2026-10-12T07:00:00.000Z",
+    "assignedSupervisorId": "usr_sup_carpentry",
+    "assignedSupervisorName": "Mohan Lal",
+    "assignedProfessional": {
+      "name": "Irfan Carpentry Works",
+      "phone": "+91 98450 98765",
+      "expectedVisitTime": "2026-10-11T16:00:00.000Z",
+      "assignedAt": "2026-10-11T09:30:00.000Z",
+      "notes": "Replace 4 heavy hydraulic hinges."
+    },
+    "resolution": null,
+    "slaBreached": true,
+    "apologyEmailSent": true,
+    "timeline": [
+      {
+        "time": "2026-10-11T07:00:00.000Z",
+        "actor": "Priya Sen (Student)",
+        "action": "Complaint registered. 24-Hour SLA deadline: 12-Oct 07:00 AM."
+      },
+      {
+        "time": "2026-10-11T07:00:05.000Z",
+        "actor": "System Automation",
+        "action": "Confirmation email dispatched to priya.sen@hostel.edu."
+      },
+      {
+        "time": "2026-10-11T09:30:00.000Z",
+        "actor": "Mohan Lal (Supervisor)",
+        "action": "Assigned Irfan Carpentry Works (+91 98450 98765)."
+      },
+      {
+        "time": "2026-10-12T07:00:00.000Z",
+        "actor": "System SLA Engine",
+        "action": "🚨 24-Hour SLA deadline breached! Escalation alert sent to Mohan Lal. Apology email dispatched to student."
+      }
+    ]
+  },
+  {
+    "id": "HST-2026-0004",
+    "ticketNumber": "HST-2026-0004",
+    "studentId": "CS-2023-104",
+    "studentName": "Aditya Kumar",
+    "studentEmail": "student@hostel.edu",
+    "hostel": "Hall 1 (Boys)",
+    "room": "B-312",
+    "category": "Food",
+    "title": "Substandard dinner quality and cold food in Mess Hall 2",
+    "description": "Last night dinner was served cold at 8:45 PM and rotis were undercooked. Mess supervisor was not present on the floor.",
+    "priority": "Normal",
+    "status": "In Progress",
+    "createdAt": "2026-10-12T07:15:00.000Z",
+    "deadline": "2026-10-13T07:15:00.000Z",
+    "assignedSupervisorId": "usr_sup_food",
+    "assignedSupervisorName": "Anil Deshmukh",
+    "assignedProfessional": {
+      "name": "Chef Manoj Kumar (Mess Manager)",
+      "phone": "+91 98111 22334",
+      "expectedVisitTime": "Today at 3:00 PM",
+      "notes": "Check kitchen heating counters and food temperature logs.",
+      "assignedAt": "2026-10-12T05:05:35.853Z"
+    },
+    "resolution": null,
+    "slaBreached": false,
+    "apologyEmailSent": false,
+    "timeline": [
+      {
+        "time": "2026-10-12T07:15:00.000Z",
+        "actor": "Aditya Kumar (Student)",
+        "action": "Complaint registered. 24-Hour SLA clock initiated."
+      },
+      {
+        "time": "2026-10-12T07:15:05.000Z",
+        "actor": "System Automation",
+        "action": "Confirmation email dispatched to student@hostel.edu."
+      },
+      {
+        "time": "2026-10-12T05:05:35.853Z",
+        "actor": "Anil Deshmukh (Supervisor)",
+        "action": "Assigned offline technician: Chef Manoj Kumar (Mess Manager) (+91 98111 22334). Expected visit: Today at 3:00 PM."
+      }
+    ]
+  },
+  {
+    "id": "HST-2026-0005",
+    "ticketNumber": "HST-2026-0005",
+    "studentId": "EC-2023-088",
+    "studentName": "Priya Sen",
+    "studentEmail": "priya.sen@hostel.edu",
+    "hostel": "Hall 1 (Girls)",
+    "room": "A-205",
+    "category": "Discipline",
+    "title": "Loud music and corridor disturbance past midnight in Wing 2",
+    "description": "Repeated noise and shouting in the common corridor between 12:30 AM and 2:00 AM violating hostel silent hours during midterm exam week.",
+    "priority": "High",
+    "status": "In Progress",
+    "createdAt": "2026-10-12T08:00:00.000Z",
+    "deadline": "2026-10-13T08:00:00.000Z",
+    "assignedSupervisorId": "usr_sup_discipline",
+    "assignedSupervisorName": "Col. R. Singh",
+    "assignedProfessional": {
+      "name": "Security Officer Sharma",
+      "phone": "+91 98333 44556",
+      "expectedVisitTime": "Today at 3:00 PM",
+      "notes": "Patrol wing 2 and issue warning notice for noise violation.",
+      "assignedAt": "2026-10-12T05:07:55.867Z"
+    },
+    "resolution": null,
+    "slaBreached": false,
+    "apologyEmailSent": false,
+    "timeline": [
+      {
+        "time": "2026-10-12T08:00:00.000Z",
+        "actor": "Priya Sen (Student)",
+        "action": "Complaint registered. 24-Hour SLA clock initiated."
+      },
+      {
+        "time": "2026-10-12T08:00:05.000Z",
+        "actor": "System Automation",
+        "action": "Confirmation email dispatched to priya.sen@hostel.edu."
+      },
+      {
+        "time": "2026-10-12T05:07:55.867Z",
+        "actor": "Col. R. Singh (Supervisor)",
+        "action": "Assigned offline technician: Security Officer Sharma (+91 98333 44556). Expected visit: Today at 3:00 PM."
+      }
+    ]
+  }
+]

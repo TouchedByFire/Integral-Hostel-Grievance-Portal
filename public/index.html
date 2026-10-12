@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HostelCare :: Student Grievance & Complaint Redressal Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-area">
+        <div class="brand-icon">🏛️</div>
+        <div>
+          <h1 class="brand-title">HostelCare</h1>
+          <p class="brand-sub">Student Grievance & Redressal Portal</p>
+        </div>
+      </div>
+
+      <!-- Quick Role Switcher Bar -->
+      <div class="role-switcher-container">
+        <span class="role-label">Active Role:</span>
+        <select id="roleSelector" class="role-select" aria-label="Switch User Role">
+          <optgroup label="Student Portal">
+            <option value="usr_student_1" selected>🎓 Student: Aditya Kumar (Hall 1 (Boys) B-312)</option>
+            <option value="usr_student_2">🎓 Student: Priya Sen (Hall 1 (Girls) A-205)</option>
+          </optgroup>
+          <optgroup label="Supervisors (By Category)">
+            <option value="usr_sup_electrical">⚡ Electrical Supervisor: Rajesh Verma</option>
+            <option value="usr_sup_plumbing">🚰 Plumbing Supervisor: Suresh Patel</option>
+            <option value="usr_sup_carpentry">🪚 Carpentry Supervisor: Mohan Lal</option>
+            <option value="usr_sup_food">🍲 Food & Mess Supervisor: Anil Deshmukh</option>
+            <option value="usr_sup_discipline">⚖️ Discipline Proctor: Col. R. Singh</option>
+          </optgroup>
+          <optgroup label="Hostel Executive Oversight">
+            <option value="usr_provost">🏛️ Chief Provost: Prof. (Dr.) Mohammad Faisal</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <!-- System Utilities -->
+      <div class="header-actions">
+        <button id="btnEmailOutbox" class="btn btn-outline" title="Inspect system email logs">
+          ✉️ Email Outbox <span id="emailCountBadge" class="badge-pill">0</span>
+        </button>
+        <div class="live-sync-indicator" title="Connected to Real-Time Server-Sent Events stream">
+          <span class="sync-dot"></span> Live Sync
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Main Workspace -->
+  <main class="main-content">
+
+    <!-- Role Header Banner -->
+    <div id="roleBanner" class="role-banner">
+      <!-- Injected dynamically via JS based on active user -->
+    </div>
+
+    <!-- VIEW 1: STUDENT VIEW -->
+    <section id="studentView" class="view-section">
+      <div class="section-toolbar">
+        <div>
+          <h2 class="view-heading">My Registered Grievances</h2>
+          <p class="view-subheading">Track resolution progress under our guaranteed 24-hour SLA.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button id="btnOpenNewComplaintModal" class="btn btn-primary">
+            <span>+</span> Raise New Complaint
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="filter-bar">
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All Complaints</button>
+          <button class="filter-tab" data-filter="active">Active & In Progress</button>
+          <button class="filter-tab" data-filter="breached">🚨 SLA Breached</button>
+          <button class="filter-tab" data-filter="resolved">✓ Resolved</button>
+        </div>
+        <div class="search-box">
+          <input type="text" id="studentSearchInput" placeholder="Search by title, ticket #, category...">
+        </div>
+      </div>
+
+      <!-- Complaints Cards Grid -->
+      <div id="studentComplaintsGrid" class="cards-grid">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- VIEW 2: SUPERVISOR VIEW -->
+    <section id="supervisorView" class="view-section" style="display:none;">
+      <!-- Supervisor KPI Cards -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon icon-blue">📋</div>
+          <div>
+            <div class="stat-val" id="supTotalCount">0</div>
+            <div class="stat-title">Total Category Tickets</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-amber">⏳</div>
+          <div>
+            <div class="stat-val" id="supPendingCount">0</div>
+            <div class="stat-title">Needs Professional Assigned</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-purple">🛠️</div>
+          <div>
+            <div class="stat-val" id="supInProgressCount">0</div>
+            <div class="stat-title">Technician On-Site / In Progress</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-red">🚨</div>
+          <div>
+            <div class="stat-val" id="supBreachedCount">0</div>
+            <div class="stat-title">Overdue (24h SLA Breached)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supervisor Section Header -->
+      <div class="section-toolbar">
+        <div>
+          <h2 class="view-heading" id="supervisorDepartmentTitle">Assigned Complaints Queue</h2>
+          <p class="view-subheading">Assign trusted field professionals and log resolution updates.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-secondary" id="btnFastForwardDemo" title="Simulate 24-hour SLA expiry for testing alerts">
+            ⏱️ Test SLA Breach (Fast-Forward)
+          </button>
+        </div>
+      </div>
+
+      <!-- Supervisor Filter Tabs -->
+      <div class="filter-bar">
+        <div class="filter-tabs" id="supervisorFilterTabs">
+          <button class="filter-tab active" data-filter="all">All Category Tickets</button>
+          <button class="filter-tab" data-filter="unassigned">Needs Professional</button>
+          <button class="filter-tab" data-filter="in_progress">In Progress</button>
+          <button class="filter-tab" data-filter="breached">🚨 Overdue / Breached</button>
+          <button class="filter-tab" data-filter="resolved">Resolved</button>
+        </div>
+      </div>
+
+      <!-- Supervisor Complaints Table -->
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ticket #</th>
+              <th>Student & Location</th>
+              <th>Issue Summary</th>
+              <th>Priority</th>
+              <th>24h SLA Countdown</th>
+              <th>Assigned Professional</th>
+              <th>Status</th>
+              <th>Supervisor Actions</th>
+            </tr>
+          </thead>
+          <tbody id="supervisorTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VIEW 3: PROVOST VIEW (EXECUTIVE OVERSIGHT) -->
+    <section id="provostView" class="view-section" style="display:none;">
+      <!-- Real-time Provost Header -->
+      <div class="provost-header-card">
+        <div class="provost-header-info">
+          <span class="live-pulse-badge">🔴 REAL-TIME HOSTEL SURVEILLANCE</span>
+          <h2 class="provost-title">Chief Provost Executive Dashboard</h2>
+          <p class="provost-sub">Central real-time monitoring of all student grievances, supervisor performance, and 24-hour SLA compliance across all hostel blocks.</p>
+        </div>
+        <div class="provost-header-actions">
+          <button class="btn btn-secondary" id="btnProvostFastForward">
+            ⏱️ Fast-Forward SLA Demo
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Executive Metrics -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon icon-blue">📊</div>
+          <div>
+            <div class="stat-val" id="provostTotal">0</div>
+            <div class="stat-title">Total Grievances</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-amber">⏳</div>
+          <div>
+            <div class="stat-val" id="provostPending">0</div>
+            <div class="stat-title">Pending Assignment</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-purple">🛠️</div>
+          <div>
+            <div class="stat-val" id="provostInProgress">0</div>
+            <div class="stat-title">In Progress</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-green">✓</div>
+          <div>
+            <div class="stat-val" id="provostResolved">0</div>
+            <div class="stat-title">Resolved Within SLA</div>
+          </div>
+        </div>
+        <div class="stat-card stat-alert">
+          <div class="stat-icon icon-red">🚨</div>
+          <div>
+            <div class="stat-val text-red" id="provostBreached">0</div>
+            <div class="stat-title">SLA Breached (>24h)</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-blue">🎯</div>
+          <div>
+            <div class="stat-val text-green" id="provostRate">100%</div>
+            <div class="stat-title">SLA Compliance</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Breakdown Row -->
+      <div class="analytics-row">
+        <!-- Category Breakdown -->
+        <div class="analytics-card">
+          <h3 class="card-heading">Complaints by Domain</h3>
+          <p class="card-sub">Distribution across Electrical, Plumbing, Carpentry, Food & Discipline</p>
+          <div id="categoryBarsContainer" class="progress-meters-list">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Real-Time Activity Feed -->
+        <div class="analytics-card">
+          <div class="feed-header">
+            <div>
+              <h3 class="card-heading">Live Incident Stream</h3>
+              <p class="card-sub">Instant activity logs from supervisors and students</p>
+            </div>
+            <span class="live-dot-tag">Live</span>
+          </div>
+          <div id="provostActivityFeed" class="activity-feed">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Provost Master Grievance Directory -->
+      <div class="section-toolbar" style="margin-top: 2rem;">
+        <div>
+          <h2 class="view-heading">Master Hostel Grievances Ledger</h2>
+          <p class="view-subheading">Complete directory with full inspection, escalation tracking, and supervisor oversight.</p>
+        </div>
+        <div class="toolbar-actions">
+          <select id="provostCategoryFilter" class="filter-select">
+            <option value="all">All Categories</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="Carpentry">Carpentry</option>
+            <option value="Food">Food</option>
+            <option value="Discipline">Discipline</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Provost Master Table -->
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ticket #</th>
+              <th>Category</th>
+              <th>Hostel & Room</th>
+              <th>Student Details</th>
+              <th>Supervisor In-Charge</th>
+              <th>Assigned Professional</th>
+              <th>24h SLA Status</th>
+              <th>Status</th>
+              <th>Inspector</th>
+            </tr>
+          </thead>
+          <tbody id="provostTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Raise Complaint Modal (Student) -->
+  <div id="newComplaintModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Raise Hostel Grievance</h3>
+          <p class="modal-sub">Submit your complaint for immediate supervisor routing & 24h SLA tracking.</p>
+        </div>
+        <button class="modal-close" id="btnCloseNewComplaintModal">&times;</button>
+      </div>
+      <form id="newComplaintForm" class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="complaintCategory">Complaint Category <span class="req">*</span></label>
+            <select id="complaintCategory" class="form-input" required>
+              <option value="">-- Select Category --</option>
+              <option value="Electrical">⚡ Electrical (Lights, Fans, Sockets, Wiring)</option>
+              <option value="Plumbing">🚰 Plumbing (Leaks, Taps, Washroom, Drainage)</option>
+              <option value="Carpentry">🪚 Carpentry (Doors, Locks, Almirah, Bed, Desk)</option>
+              <option value="Food">🍲 Food & Mess (Quality, Cleanliness, Hygiene, Timing)</option>
+              <option value="Discipline">⚖️ Discipline (Noise, Disturbance, Ragging, Security)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="complaintPriority">Urgency Level</label>
+            <select id="complaintPriority" class="form-input">
+              <option value="Normal">Normal (Standard 24h)</option>
+              <option value="High">High (Impacting Daily Routine)</option>
+              <option value="Urgent">Urgent / Safety Critical</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="complaintTitle">Grievance Subject / Title <span class="req">*</span></label>
+          <input type="text" id="complaintTitle" class="form-input" placeholder="e.g. Ceiling fan regulator not working and sparks" required>
+        </div>
+
+        <div class="form-group">
+          <label for="complaintDescription">Detailed Description <span class="req">*</span></label>
+          <textarea id="complaintDescription" class="form-input" rows="4" placeholder="Provide exact details of the issue to help the supervisor dispatch the right technician..." required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Hostel Block & Room</label>
+            <input type="text" id="studentHostelRoom" class="form-input" readonly>
+          </div>
+          <div class="form-group">
+            <label>Student Email (For SLA Confirmation & Updates)</label>
+            <input type="email" id="studentEmailInput" class="form-input" readonly>
+          </div>
+        </div>
+
+        <div class="sla-notice-box">
+          <div class="sla-notice-icon">⏱️</div>
+          <div>
+            <strong>Strict 24-Hour SLA Guarantee:</strong>
+            <p>Upon registration, an acknowledgment email will be sent immediately. If unresolved within 24 hours, an apology email will be dispatched and an escalation alert sent directly to the Chief Provost.</p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelNewComplaint">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitComplaint">Register Complaint</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Assign Working Professional Modal (Supervisor) -->
+  <div id="assignProfessionalModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Assign Field Professional</h3>
+          <p class="modal-sub" id="assignModalSubtitle">Designate an offline technician to address this ticket.</p>
+        </div>
+        <button class="modal-close" id="btnCloseAssignModal">&times;</button>
+      </div>
+      <form id="assignProfessionalForm" class="modal-body">
+        <input type="hidden" id="assignTicketId">
+
+        <div class="info-banner" id="assignTicketSummaryBanner">
+          <!-- Populated via JS -->
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="profName">Technician / Professional Full Name <span class="req">*</span></label>
+            <input type="text" id="profName" class="form-input" placeholder="e.g. Ramesh Kumar (Electrician)" required>
+          </div>
+          <div class="form-group">
+            <label for="profPhone">Professional Mobile / Contact No. <span class="req">*</span></label>
+            <input type="text" id="profPhone" class="form-input" placeholder="e.g. +91 98234 56789" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="profVisitTime">Expected Visit Date & Time <span class="req">*</span></label>
+          <input type="text" id="profVisitTime" class="form-input" placeholder="e.g. Today between 2:00 PM - 3:30 PM" required>
+        </div>
+
+        <div class="form-group">
+          <label for="profNotes">Special Work Order Notes / Instructions</label>
+          <textarea id="profNotes" class="form-input" rows="2" placeholder="e.g. Bring 16A switch board and check phase voltage..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelAssign">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm & Dispatch Professional</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Resolve Ticket Modal (Supervisor / Provost) -->
+  <div id="resolveTicketModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Mark Complaint as Resolved</h3>
+          <p class="modal-sub">Record completion details and send confirmation notice to student.</p>
+        </div>
+        <button class="modal-close" id="btnCloseResolveModal">&times;</button>
+      </div>
+      <form id="resolveTicketForm" class="modal-body">
+        <input type="hidden" id="resolveTicketId">
+
+        <div class="info-banner" id="resolveTicketSummaryBanner"></div>
+
+        <div class="form-group">
+          <label for="resolutionNotes">Resolution Remarks & Actions Taken <span class="req">*</span></label>
+          <textarea id="resolutionNotes" class="form-input" rows="4" placeholder="Detail how the issue was resolved (e.g. Replaced faulty socket module, tested grounding, student confirmed fix)..." required></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelResolve">Cancel</button>
+          <button type="submit" class="btn btn-success">Mark Fully Resolved</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Ticket Detail & Timeline Drawer/Modal -->
+  <div id="ticketDetailModal" class="modal-overlay">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <div>
+          <span class="badge-category" id="modalCategoryBadge">Category</span>
+          <h3 class="modal-title" id="modalTicketTitle" style="margin-top:4px;">Complaint Title</h3>
+          <p class="modal-sub" id="modalTicketMeta">Ticket #HST-XXXX &bull; Student Name &bull; Room</p>
+        </div>
+        <button class="modal-close" id="btnCloseDetailModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <!-- Left Column: Details -->
+          <div class="detail-main">
+            <h4 class="detail-section-title">Grievance Description</h4>
+            <div id="modalDescriptionBox" class="detail-description"></div>
+
+            <h4 class="detail-section-title" style="margin-top: 1.5rem;">Assigned Field Professional</h4>
+            <div id="modalProfessionalBox" class="professional-card"></div>
+
+            <div id="modalResolutionSection" style="display:none; margin-top: 1.5rem;">
+              <h4 class="detail-section-title">Resolution Details</h4>
+              <div id="modalResolutionBox" class="resolution-card"></div>
+            </div>
+          </div>
+
+          <!-- Right Column: SLA & Timeline -->
+          <div class="detail-sidebar">
+            <div class="sla-card" id="modalSlaCard">
+              <div class="sla-card-header">
+                <span>⏱️ 24h SLA Status</span>
+                <span id="modalSlaStatusBadge" class="badge-status">Status</span>
+              </div>
+              <div class="sla-countdown-val" id="modalSlaCountdownText">23h 40m remaining</div>
+              <div class="sla-progress-wrap">
+                <div class="sla-progress-fill" id="modalSlaProgressBar"></div>
+              </div>
+              <p class="sla-deadline-text" id="modalSlaDeadlineText">Deadline: Date</p>
+            </div>
+
+            <h4 class="detail-section-title" style="margin-top: 1.25rem;">Chronological Audit Trail</h4>
+            <div id="modalTimelineList" class="timeline-list"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" id="modalDetailActions">
+        <!-- Injected dynamically depending on role -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. System Email Outbox Modal -->
+  <div id="emailOutboxModal" class="modal-overlay">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">✉️ System Outbox & Email Audit Log</h3>
+          <p class="modal-sub">Real-time log of confirmation emails, 24h SLA breach apologies, and assignment notices.</p>
+        </div>
+        <button class="modal-close" id="btnCloseEmailOutbox">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="outbox-layout">
+          <div class="outbox-list" id="emailOutboxList">
+            <!-- List of emails rendered via JS -->
+          </div>
+          <div class="outbox-preview" id="emailOutboxPreview">
+            <div class="empty-state">Select an email to view full rendered HTML preview.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

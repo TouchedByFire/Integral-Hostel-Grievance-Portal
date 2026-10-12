@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IntegraCare :: Integral University Hostel Grievance Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+      background: radial-gradient(circle at top right, #dbeafe, #f1f5f9 60%);
+    }
+    .login-container {
+      max-width: 980px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.12);
+      border: 1px solid var(--slate-200);
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      overflow: hidden;
+    }
+    @media (max-width: 860px) {
+      .login-container { grid-template-columns: 1fr; }
+      .login-promo { display: none; }
+    }
+    .login-promo {
+      background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 60%, #1d4ed8 100%);
+      color: #ffffff;
+      padding: 3.5rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+    .login-promo::after {
+      content: '';
+      position: absolute;
+      top: -20%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .univ-crest {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 1.5rem;
+    }
+    .promo-title {
+      font-family: var(--font-heading);
+      font-size: 2.1rem;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+    .promo-desc {
+      font-size: 0.92rem;
+      color: var(--slate-300);
+      margin-top: 0.85rem;
+      line-height: 1.6;
+    }
+    .hostel-list-box {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-top: 2rem;
+    }
+    .hostel-list-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93c5fd;
+      margin-bottom: 0.5rem;
+    }
+    .hostel-list-items {
+      font-size: 0.82rem;
+      color: var(--slate-200);
+      line-height: 1.5;
+    }
+    .login-form-area {
+      padding: 3rem 2.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .login-heading {
+      font-family: var(--font-heading);
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--slate-900);
+      letter-spacing: -0.01em;
+    }
+    .login-sub {
+      font-size: 0.85rem;
+      color: var(--slate-500);
+      margin-top: 0.2rem;
+      margin-bottom: 1.75rem;
+    }
+    /* Tab Switcher */
+    .auth-tabs {
+      display: flex;
+      background: var(--slate-100);
+      padding: 0.3rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.75rem;
+      border: 1px solid var(--slate-200);
+    }
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--slate-600);
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .auth-tab.active {
+      background: #ffffff;
+      color: var(--primary-700);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .login-error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .student-register-prompt {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--slate-200);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--slate-600);
+    }
+    .student-register-prompt a {
+      color: var(--primary-600);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .student-register-prompt a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper">
+    <div class="login-container">
+      
+      <!-- Left Branding Panel -->
+      <div class="login-promo">
+        <div>
+          <div class="univ-crest">🏛️ INTEGRAL UNIVERSITY, LUCKNOW</div>
+          <h2 class="promo-title">IntegraCare</h2>
+          <p class="promo-desc">
+            Official Residence Grievance Redressal System. Providing structured resolution for Electrical, Plumbing, Carpentry, Food, and Discipline issues across all university hostels.
+          </p>
+        </div>
+
+        <div>
+          <div class="hostel-list-box">
+            <div class="hostel-list-title">Residential Halls Covered</div>
+            <div class="hostel-list-items">
+              &bull; Hall 1, Hall 2, Hall 3 (Boys)<br>
+              &bull; Hall 1, Hall 2, Hall 3 (Girls)
+            </div>
+          </div>
+          <div style="margin-top:1.5rem; font-size:0.75rem; color:var(--slate-400);">
+            Office of the Chief Provost &bull; 24-Hour Redressal Guarantee
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Authentication Panel -->
+      <div class="login-form-area">
+        <h1 class="login-heading">Portal Login</h1>
+        <p class="login-sub">Sign in with your university credentials to access your dashboard.</p>
+
+        <!-- Role Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabStudent" type="button">
+            🎓 Student Login
+          </button>
+          <button class="auth-tab" id="tabStaff" type="button">
+            🏛️ Supervisor / Provost
+          </button>
+        </div>
+
+        <div class="login-error" id="loginErrorMsg"></div>
+
+        <!-- 1. STUDENT LOGIN FORM -->
+        <form id="studentLoginForm">
+          <div class="form-group">
+            <label for="enrollmentInput">University Enrollment Number <span class="req">*</span></label>
+            <input type="text" id="enrollmentInput" class="form-input" placeholder="e.g. IU/2023/10452" value="IU/2023/10452" required autofocus>
+          </div>
+
+          <div class="form-group">
+            <label for="studentPasswordInput">Password <span class="req">*</span></label>
+            <input type="password" id="studentPasswordInput" class="form-input" value="student123" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%; padding:0.75rem; margin-top:0.5rem;">
+            Sign In as Student
+          </button>
+
+          <div class="student-register-prompt">
+            First time hostel resident? <a id="btnOpenRegisterModal">Register with Enrollment Number</a>
+          </div>
+        </form>
+
+        <!-- 2. STAFF LOGIN FORM (SUPERVISOR & PROVOST) -->
+        <form id="staffLoginForm" style="display:none;">
+          <div class="form-group">
+            <label for="staffEmailInput">Official Staff Email ID <span class="req">*</span></label>
+            <input type="email" id="staffEmailInput" class="form-input" placeholder="e.g. electrical.hostel@iul.ac.in or provost@iul.ac.in" required>
+          </div>
+
+          <div class="form-group">
+            <label for="staffPasswordInput">Password <span class="req">*</span></label>
+            <input type="password" id="staffPasswordInput" class="form-input" placeholder="Enter staff password" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%; padding:0.75rem; margin-top:0.5rem;">
+            Sign In to Staff Directorate
+          </button>
+
+          <div style="margin-top:1.25rem; font-size:0.75rem; color:var(--slate-500); text-align:center;">
+            Role-Based Access Control: Grants access strictly to assigned maintenance category or executive provost surveillance.
+          </div>
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Student Self-Registration Modal -->
+  <div id="registerModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Student Registration</h3>
+          <p class="modal-sub">Create your hostel account using your official Integral University Enrollment Number.</p>
+        </div>
+        <button class="modal-close" id="btnCloseRegisterModal">&times;</button>
+      </div>
+      <form id="registerForm" class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regName">Full Name <span class="req">*</span></label>
+            <input type="text" id="regName" class="form-input" placeholder="e.g. Mohammad Zaid" required>
+          </div>
+          <div class="form-group">
+            <label for="regEnrollment">Enrollment Number <span class="req">*</span></label>
+            <input type="text" id="regEnrollment" class="form-input" placeholder="e.g. IU/2024/10982" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regEmail">Student Email ID <span class="req">*</span></label>
+            <input type="email" id="regEmail" class="form-input" placeholder="e.g. zaid@iul.ac.in" required>
+          </div>
+          <div class="form-group">
+            <label for="regPhone">Mobile Number</label>
+            <input type="tel" id="regPhone" class="form-input" placeholder="+91 98765 00000">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regHostel">Hostel Hall <span class="req">*</span></label>
+            <select id="regHostel" class="form-input" required>
+              <option value="">-- Select Hall --</option>
+              <optgroup label="Boys Hostels">
+                <option value="Hall 1 (Boys)">Hall 1 (Boys)</option>
+                <option value="Hall 2 (Boys)">Hall 2 (Boys)</option>
+                <option value="Hall 3 (Boys)">Hall 3 (Boys)</option>
+              </optgroup>
+              <optgroup label="Girls Hostels">
+                <option value="Hall 1 (Girls)">Hall 1 (Girls)</option>
+                <option value="Hall 2 (Girls)">Hall 2 (Girls)</option>
+                <option value="Hall 3 (Girls)">Hall 3 (Girls)</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="regRoom">Room Number <span class="req">*</span></label>
+            <input type="text" id="regRoom" class="form-input" placeholder="e.g. K-204" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="regPassword">Set Password <span class="req">*</span></label>
+          <input type="password" id="regPassword" class="form-input" placeholder="Choose a password" required>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelRegister">Cancel</button>
+          <button type="submit" class="btn btn-primary">Complete Registration</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabStudent = document.getElementById('tabStudent');
+      const tabStaff = document.getElementById('tabStaff');
+      const studentForm = document.getElementById('studentLoginForm');
+      const staffForm = document.getElementById('staffLoginForm');
+      const errorMsg = document.getElementById('loginErrorMsg');
+
+      // Tab Switching
+      tabStudent.addEventListener('click', () => {
+        tabStudent.classList.add('active');
+        tabStaff.classList.remove('active');
+        studentForm.style.display = 'block';
+        staffForm.style.display = 'none';
+        errorMsg.style.display = 'none';
+      });
+
+      tabStaff.addEventListener('click', () => {
+        tabStaff.classList.add('active');
+        tabStudent.classList.remove('active');
+        staffForm.style.display = 'block';
+        studentForm.style.display = 'none';
+        errorMsg.style.display = 'none';
+      });
+
+      // 1. Student Login (Enrollment Number Based)
+      studentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorMsg.style.display = 'none';
+        const enrollmentNo = document.getElementById('enrollmentInput').value.trim();
+        const password = document.getElementById('studentPasswordInput').value;
+
+        try {
+          const res = await fetch('/api/auth/student-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enrollmentNo, password })
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            errorMsg.textContent = data.error || 'Student login failed.';
+            errorMsg.style.display = 'block';
+            return;
+          }
+          window.location.href = data.redirectUrl;
+        } catch (err) {
+          errorMsg.textContent = 'Server connection error: ' + err.message;
+          errorMsg.style.display = 'block';
+        }
+      });
+
+      // 2. Staff Login (Email ID Based)
+      staffForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorMsg.style.display = 'none';
+        const email = document.getElementById('staffEmailInput').value.trim();
+        const password = document.getElementById('staffPasswordInput').value;
+
+        try {
+          const res = await fetch('/api/auth/staff-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            errorMsg.textContent = data.error || 'Staff authentication failed.';
+            errorMsg.style.display = 'block';
+            return;
+          }
+          window.location.href = data.redirectUrl;
+        } catch (err) {
+          errorMsg.textContent = 'Server connection error: ' + err.message;
+          errorMsg.style.display = 'block';
+        }
+      });
+
+      // Registration Modal
+      const regModal = document.getElementById('registerModal');
+      document.getElementById('btnOpenRegisterModal').addEventListener('click', () => regModal.classList.add('active'));
+      document.getElementById('btnCloseRegisterModal').addEventListener('click', () => regModal.classList.remove('active'));
+      document.getElementById('btnCancelRegister').addEventListener('click', () => regModal.classList.remove('active'));
+
+      document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          name: document.getElementById('regName').value.trim(),
+          enrollmentNo: document.getElementById('regEnrollment').value.trim(),
+          email: document.getElementById('regEmail').value.trim(),
+          phone: document.getElementById('regPhone').value.trim(),
+          hostel: document.getElementById('regHostel').value,
+          room: document.getElementById('regRoom').value.trim(),
+          password: document.getElementById('regPassword').value
+        };
+
+        try {
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+          regModal.classList.remove('active');
+          document.getElementById('enrollmentInput').value = payload.enrollmentNo;
+          document.getElementById('studentPasswordInput').value = payload.password;
+          alert('Registration successful! You may now sign in with your Enrollment Number.');
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

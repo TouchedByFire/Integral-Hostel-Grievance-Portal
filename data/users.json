@@ -1,0 +1,75 @@
+[
+  {
+    "id": "usr_student_1",
+    "role": "student",
+    "name": "Aditya Kumar",
+    "email": "student@hostel.edu",
+    "studentId": "CS-2023-104",
+    "hostel": "Hall 1 (Boys)",
+    "room": "B-312",
+    "phone": "+91 98765 43210"
+  },
+  {
+    "id": "usr_student_2",
+    "role": "student",
+    "name": "Priya Sen",
+    "email": "priya.sen@hostel.edu",
+    "studentId": "EC-2023-088",
+    "hostel": "Hall 1 (Girls)",
+    "room": "A-205",
+    "phone": "+91 98123 45678"
+  },
+  {
+    "id": "usr_sup_electrical",
+    "role": "supervisor",
+    "category": "Electrical",
+    "name": "Rajesh Verma",
+    "email": "electrical@hostel.edu",
+    "title": "Supervisor - Electrical Maintenance",
+    "phone": "+91 94150 11223"
+  },
+  {
+    "id": "usr_sup_plumbing",
+    "role": "supervisor",
+    "category": "Plumbing",
+    "name": "Suresh Patel",
+    "email": "plumbing@hostel.edu",
+    "title": "Supervisor - Water & Plumbing Systems",
+    "phone": "+91 94150 22334"
+  },
+  {
+    "id": "usr_sup_carpentry",
+    "role": "supervisor",
+    "category": "Carpentry",
+    "name": "Mohan Lal",
+    "email": "carpentry@hostel.edu",
+    "title": "Supervisor - Carpentry & Furniture Works",
+    "phone": "+91 94150 33445"
+  },
+  {
+    "id": "usr_sup_food",
+    "role": "supervisor",
+    "category": "Food",
+    "name": "Anil Deshmukh",
+    "email": "food@hostel.edu",
+    "title": "Supervisor - Hostel Mess & Catering Quality",
+    "phone": "+91 94150 44556"
+  },
+  {
+    "id": "usr_sup_discipline",
+    "role": "supervisor",
+    "category": "Discipline",
+    "name": "Col. R. Singh",
+    "email": "discipline@hostel.edu",
+    "title": "Hostel Warden & Discipline Proctor",
+    "phone": "+91 94150 55667"
+  },
+  {
+    "id": "usr_provost",
+    "role": "provost",
+    "name": "Prof. (Dr.) Mohammad Faisal",
+    "email": "provost@iul.ac.in",
+    "title": "Chief Provost - Integral University Hostels",
+    "phone": "+91 94150 99887"
+  }
+]

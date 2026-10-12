@@ -1,0 +1,74 @@
+[
+  {
+    "id": "eml_1791781675897_886",
+    "ticketNumber": "HST-2026-0005",
+    "type": "TECHNICIAN_ASSIGNED",
+    "to": "priya.sen@hostel.edu",
+    "subject": "[Hostel Grievance Portal] Technician Assigned: #HST-2026-0005 [Discipline]",
+    "sentAt": "2026-10-12T05:07:55.898Z",
+    "bodyHtml": "\n    <div style=\"font-family: Arial, sans-serif; padding: 24px; color: #1e293b; line-height: 1.6;\">\n      <h3 style=\"color: #1e40af; margin-top: 0;\">Technician Dispatched for Ticket #HST-2026-0005</h3>\n      <p>Dear <strong>Priya Sen</strong>,</p>\n      <p>Supervisor <strong>Col. R. Singh</strong> has assigned a qualified technician to inspect and resolve your complaint:</p>\n      <div style=\"background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin: 16px 0;\">\n        <p style=\"margin: 0; font-weight: bold; color: #1e40af;\">Technician: Security Officer Sharma</p>\n        <p style=\"margin: 4px 0; font-size: 14px;\">Contact: <strong>+91 98333 44556</strong></p>\n        <p style=\"margin: 4px 0; font-size: 14px;\">Expected Visit: <strong>Today at 3:00 PM</strong></p>\n        <p style=\"margin: 8px 0 0; font-size: 13px; color: #475569;\"><em>Notes: Patrol wing 2 and issue warning notice for noise violation.</em></p>\n      </div>\n      <p>Please make sure you or your roommate are present in Room A-205.</p>\n    </div>\n  "
+  },
+  {
+    "id": "eml_1791781535864_111",
+    "ticketNumber": "HST-2026-0004",
+    "type": "TECHNICIAN_ASSIGNED",
+    "to": "student@hostel.edu",
+    "subject": "[Hostel Grievance Portal] Technician Assigned: #HST-2026-0004 [Food]",
+    "sentAt": "2026-10-12T05:05:35.865Z",
+    "bodyHtml": "\n    <div style=\"font-family: Arial, sans-serif; padding: 24px; color: #1e293b; line-height: 1.6;\">\n      <h3 style=\"color: #1e40af; margin-top: 0;\">Technician Dispatched for Ticket #HST-2026-0004</h3>\n      <p>Dear <strong>Aditya Kumar</strong>,</p>\n      <p>Supervisor <strong>Anil Deshmukh</strong> has assigned a qualified technician to inspect and resolve your complaint:</p>\n      <div style=\"background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin: 16px 0;\">\n        <p style=\"margin: 0; font-weight: bold; color: #1e40af;\">Technician: Chef Manoj Kumar (Mess Manager)</p>\n        <p style=\"margin: 4px 0; font-size: 14px;\">Contact: <strong>+91 98111 22334</strong></p>\n        <p style=\"margin: 4px 0; font-size: 14px;\">Expected Visit: <strong>Today at 3:00 PM</strong></p>\n        <p style=\"margin: 8px 0 0; font-size: 13px; color: #475569;\"><em>Notes: Check kitchen heating counters and food temperature logs.</em></p>\n      </div>\n      <p>Please make sure you or your roommate are present in Room B-312.</p>\n    </div>\n  "
+  },
+  {
+    "id": "eml_1791781354301_872",
+    "ticketNumber": "HST-2026-0006",
+    "type": "TECHNICIAN_ASSIGNED",
+    "to": "student@hostel.edu",
+    "subject": "[Hostel Grievance Portal] Technician Assigned: #HST-2026-0006 [Electrical]",
+    "sentAt": "2026-10-12T05:02:34.301Z",
+    "bodyHtml": "\n    <div style=\"font-family: Arial, sans-serif; padding: 24px; color: #1e293b; line-height: 1.6;\">\n      <h3 style=\"color: #1e40af; margin-top: 0;\">Technician Dispatched for Ticket #HST-2026-0006</h3>\n      <p>Dear <strong>Aditya Kumar</strong>,</p>\n      <p>Supervisor <strong>Rajesh Verma</strong> has assigned a qualified technician to inspect and resolve your complaint:</p>\n      <div style=\"background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin: 16px 0;\">\n        <p style=\"margin: 0; font-weight: bold; color: #1e40af;\">Technician: Ramesh Kumar (Electrician)</p>\n        <p style=\"margin: 4px 0; font-size: 14px;\">Contact: <strong>+91 98234 56789</strong></p>\n        <p style=\"margin: 4px 0; font-size: 14px;\">Expected Visit: <strong>Today at 3:00 PM</strong></p>\n        <p style=\"margin: 8px 0 0; font-size: 13px; color: #475569;\"><em>Notes: Please bring replacement fluorescent tube light and check ballast.</em></p>\n      </div>\n      <p>Please make sure you or your roommate are present in Room B-312.</p>\n    </div>\n  "
+  },
+  {
+    "id": "eml_1791780793596_89",
+    "ticketNumber": "HST-2026-0006",
+    "type": "CONFIRMATION",
+    "to": "student@hostel.edu",
+    "subject": "[Hostel Grievance Portal] Ticket Registered: #HST-2026-0006 [Electrical]",
+    "sentAt": "2026-10-12T04:53:13.598Z",
+    "bodyHtml": "\n    <div style=\"font-family: Arial, sans-serif; padding: 24px; color: #1e293b; line-height: 1.6;\">\n      <h2 style=\"color: #1e40af; margin-top: 0;\">Hostel Grievance Redressal Portal</h2>\n      <p>Dear <strong>Aditya Kumar</strong>,</p>\n      <p>Your grievance has been successfully registered. Here are your ticket tracking details:</p>\n      <div style=\"background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0;\">\n        <table style=\"width: 100%; border-collapse: collapse;\">\n          <tr>\n            <td style=\"padding: 6px 0; color: #64748b; font-size: 13px;\">Ticket Number:</td>\n            <td style=\"padding: 6px 0; font-weight: bold; color: #1e40af; font-size: 14px;\">#HST-2026-0006</td>\n          </tr>\n          <tr>\n            <td style=\"padding: 6px 0; color: #64748b; font-size: 13px;\">Category:</td>\n            <td style=\"padding: 6px 0; font-weight: bold;\">Electrical</td>\n          </tr>\n          <tr>\n            <td style=\"padding: 6px 0; color: #64748b; font-size: 13px;\">Hostel & Room:</td>\n            <td style=\"padding: 6px 0;\">Hall 1 (Boys) - Room B-312</td>\n          </tr>\n          <tr>\n            <td style=\"padding: 6px 0; color: #64748b; font-size: 13px;\">Assigned Supervisor:</td>\n            <td style=\"padding: 6px 0; font-weight: bold;\">Rajesh Verma</td>\n          </tr>\n          <tr>\n            <td style=\"padding: 6px 0; color: #64748b; font-size: 13px;\">24-Hour Resolution SLA:</td>\n            <td style=\"padding: 6px 0; color: #059669; font-weight: bold;\">Within 24 Hours (10:23:13 am tomorrow)</td>\n          </tr>\n        </table>\n      </div>\n      <p>Supervisor <strong>Rajesh Verma</strong> will review this grievance and dispatch a technician to your room.</p>\n      <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;\">\n      <p style=\"font-size: 12px; color: #64748b; margin: 0;\">Hostel Administration Office &bull; Chief Provost Directorate</p>\n    </div>\n  "
+  },
+  {
+    "id": "eml_001",
+    "ticketNumber": "HST-2026-0001",
+    "type": "CONFIRMATION",
+    "to": "student@hostel.edu",
+    "subject": "[Hostel Grievance Portal] Complaint Registered: #HST-2026-0001 [Electrical]",
+    "sentAt": "2026-10-11T14:30:05.000Z",
+    "bodyHtml": "<div style='font-family: Arial, sans-serif; padding: 20px; color: #1e293b;'><h2>Hostel Grievance Redressal Portal</h2><p>Dear <strong>Aditya Kumar</strong>,</p><p>Your grievance has been successfully registered under ticket <strong>#HST-2026-0001</strong>.</p><table style='width:100%; border-collapse: collapse; margin: 15px 0;'><tr style='background:#f1f5f9;'><td style='padding:8px; font-weight:bold;'>Category</td><td style='padding:8px;'>Electrical</td></tr><tr><td style='padding:8px; font-weight:bold;'>Hostel / Room</td><td style='padding:8px;'>Hall 1 (Boys) - B-312</td></tr><tr style='background:#f1f5f9;'><td style='padding:8px; font-weight:bold;'>24-Hour SLA Target</td><td style='padding:8px; color:#2563eb; font-weight:bold;'>12-Oct-2026 14:30 UTC</td></tr></table><p>Supervisor <strong>Rajesh Verma</strong> has been assigned to address your grievance and will dispatch an electrical technician shortly.</p><p style='font-size:12px; color:#64748b;'>Hostel Administration Office &bull; Chief Provost Directorate</p></div>"
+  },
+  {
+    "id": "eml_002",
+    "ticketNumber": "HST-2026-0002",
+    "type": "CONFIRMATION",
+    "to": "student@hostel.edu",
+    "subject": "[Hostel Grievance Portal] Complaint Registered: #HST-2026-0002 [Plumbing]",
+    "sentAt": "2026-10-12T00:30:05.000Z",
+    "bodyHtml": "<div style='font-family: Arial, sans-serif; padding: 20px; color: #1e293b;'><h2>Hostel Grievance Redressal Portal</h2><p>Dear <strong>Aditya Kumar</strong>,</p><p>Your grievance has been successfully registered under ticket <strong>#HST-2026-0002</strong>.</p><table style='width:100%; border-collapse: collapse; margin: 15px 0;'><tr style='background:#f1f5f9;'><td style='padding:8px; font-weight:bold;'>Category</td><td style='padding:8px;'>Plumbing</td></tr><tr><td style='padding:8px; font-weight:bold;'>Hostel / Room</td><td style='padding:8px;'>Hall 1 (Boys) - B-312</td></tr><tr style='background:#f1f5f9;'><td style='padding:8px; font-weight:bold;'>24-Hour SLA Target</td><td style='padding:8px; color:#2563eb; font-weight:bold;'>13-Oct-2026 00:30 UTC</td></tr></table><p>Supervisor <strong>Suresh Patel</strong> has been notified.</p><p style='font-size:12px; color:#64748b;'>Hostel Administration Office &bull; Chief Provost Directorate</p></div>"
+  },
+  {
+    "id": "eml_003",
+    "ticketNumber": "HST-2026-0003",
+    "type": "CONFIRMATION",
+    "to": "priya.sen@hostel.edu",
+    "subject": "[Hostel Grievance Portal] Complaint Registered: #HST-2026-0003 [Carpentry]",
+    "sentAt": "2026-10-11T07:00:05.000Z",
+    "bodyHtml": "<div style='font-family: Arial, sans-serif; padding: 20px; color: #1e293b;'><h2>Hostel Grievance Redressal Portal</h2><p>Dear <strong>Priya Sen</strong>,</p><p>Your grievance has been successfully registered under ticket <strong>#HST-2026-0003</strong>.</p><p>24-Hour SLA Target: <strong>12-Oct-2026 07:00 UTC</strong>.</p><p style='font-size:12px; color:#64748b;'>Hostel Administration Office</p></div>"
+  },
+  {
+    "id": "eml_004",
+    "ticketNumber": "HST-2026-0003",
+    "type": "SLA_BREACH_APOLOGY",
+    "to": "priya.sen@hostel.edu",
+    "subject": "[Hostel Grievance Portal] Sincere Apology: Resolution Delay on Ticket #HST-2026-0003 [Carpentry]",
+    "sentAt": "2026-10-12T07:00:02.000Z",
+    "bodyHtml": "<div style='font-family: Arial, sans-serif; padding: 25px; border-left: 5px solid #dc2626; background: #fff5f5; color: #1e293b;'><h2>Notice of Resolution Delay & Sincere Apologies</h2><p>Dear <strong>Priya Sen</strong>,</p><p>We sincerely regret to inform you that your grievance regarding <em>'Almirah door hinges broken and hanging dangerously'</em> (Ticket <strong>#HST-2026-0003</strong>) was not resolved within our mandated <strong>24-hour service level agreement (SLA)</strong>.</p><div style='background:#ffffff; border:1px solid #fecaca; border-radius:6px; padding:15px; margin:15px 0;'><p style='margin:0; font-weight:bold; color:#b91c1c;'>Escalation Status: Active Alert</p><p style='margin:5px 0 0; font-size:13px; color:#475569;'>This ticket has been automatically escalated directly to the <strong>Chief Provost's Executive Dashboard</strong> and an urgent reminder was dispatched to Supervisor <strong>Mohan Lal</strong>.</p></div><p>We are actively working to resolve this issue with top priority. We deeply value your patience.</p><p style='font-size:12px; color:#64748b;'>Chief Provost Office &bull; Hostel Grievance Committee</p></div>"
+  }
+]
