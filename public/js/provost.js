@@ -7,6 +7,10 @@ let complaints = [];
 let categoryFilter = 'all';
 let ledgerView = window.innerWidth <= 768 ? 'cards' : 'table';
 
+let supervisors = [];
+let supervisorSearchTerm = '';
+let supervisorCategoryFilter = 'all';
+
 const CATEGORIES = {
   Electrical: { icon: '⚡', class: 'cat-electrical', color: '#b45309' },
   Plumbing: { icon: '🚰', class: 'cat-plumbing', color: '#0369a1' },
@@ -18,10 +22,13 @@ const CATEGORIES = {
 document.addEventListener('DOMContentLoaded', async () => {
   await checkAuth();
   setupEventListeners();
+  setupSupervisorEventListeners();
   initSSE();
+  fetchSupervisors();
   setInterval(() => {
     fetchProvostStats();
     fetchComplaints();
+    fetchSupervisors();
   }, 20000);
 });
 
@@ -100,6 +107,8 @@ async function fetchComplaints() {
   try {
     const res = await fetch(`/api/complaints?category=${categoryFilter}`);
     complaints = await res.json();
+    const badge = document.getElementById('badgeLedgerCount');
+    if (badge) badge.textContent = complaints.length;
     renderTable();
   } catch (err) {
     console.error('Error fetching complaints:', err);
@@ -178,6 +187,12 @@ function initSSE() {
     try {
       const data = JSON.parse(e.data);
       if (['TICKET_CREATED', 'PROFESSIONAL_ASSIGNED', 'STATUS_UPDATED', 'SLA_BREACHED'].includes(data.type)) {
+        fetchProvostStats();
+        fetchComplaints();
+        fetchSupervisors();
+      }
+      if (data.type === 'SUPERVISORS_UPDATED') {
+        fetchSupervisors();
         fetchProvostStats();
         fetchComplaints();
       }
@@ -439,3 +454,425 @@ function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
 }
+
+// ========================================================
+// SUPERVISOR MANAGEMENT CONSOLE FUNCTIONS
+// ========================================================
+
+function switchModule(moduleName) {
+  const btnLedger = document.getElementById('tabModuleLedger');
+  const btnSups = document.getElementById('tabModuleSupervisors');
+  const secLedger = document.getElementById('ledgerModuleSection');
+  const secSups = document.getElementById('supervisorsModuleSection');
+
+  if (moduleName === 'supervisors') {
+    if (btnLedger) btnLedger.classList.remove('active');
+    if (btnSups) btnSups.classList.add('active');
+    if (secLedger) secLedger.style.display = 'none';
+    if (secSups) secSups.style.display = 'block';
+    fetchSupervisors();
+  } else {
+    if (btnLedger) btnLedger.classList.add('active');
+    if (btnSups) btnSups.classList.remove('active');
+    if (secLedger) secLedger.style.display = 'block';
+    if (secSups) secSups.style.display = 'none';
+    updateLedgerView();
+  }
+}
+
+async function fetchSupervisors() {
+  try {
+    const res = await fetch('/api/supervisors');
+    if (!res.ok) return;
+    supervisors = await res.json();
+
+    // Summary Strip KPIs
+    const total = supervisors.length;
+    const domainsSet = new Set(supervisors.map(s => s.category));
+    let totalActiveTickets = 0;
+    let totalCompliance = 0;
+
+    supervisors.forEach(s => {
+      totalActiveTickets += (s.stats.pending + s.stats.inProgress);
+      totalCompliance += s.stats.complianceRate;
+    });
+
+    const avgCompliance = total > 0 ? Math.round(totalCompliance / total) : 100;
+
+    const elTotal = document.getElementById('supSummaryTotal');
+    const elDomains = document.getElementById('supSummaryDomains');
+    const elActive = document.getElementById('supSummaryActiveWorkload');
+    const elAvgComp = document.getElementById('supSummaryAvgCompliance');
+    const elBadge = document.getElementById('badgeSupervisorsCount');
+
+    if (elTotal) elTotal.textContent = total;
+    if (elDomains) elDomains.textContent = `${domainsSet.size} / 5`;
+    if (elActive) elActive.textContent = totalActiveTickets;
+    if (elAvgComp) elAvgComp.textContent = `${avgCompliance}%`;
+    if (elBadge) elBadge.textContent = total;
+
+    renderSupervisors();
+  } catch (err) {
+    console.error('Error fetching supervisors:', err);
+  }
+}
+
+function renderSupervisors() {
+  const container = document.getElementById('supervisorsCardsContainer');
+  if (!container) return;
+
+  const term = supervisorSearchTerm.toLowerCase().trim();
+  const filtered = supervisors.filter(s => {
+    const matchesCat = supervisorCategoryFilter === 'all' || s.category === supervisorCategoryFilter;
+    const matchesSearch = !term || 
+      s.name.toLowerCase().includes(term) || 
+      s.email.toLowerCase().includes(term) || 
+      s.category.toLowerCase().includes(term) || 
+      (s.phone && s.phone.toLowerCase().includes(term)) ||
+      (s.title && s.title.toLowerCase().includes(term));
+    return matchesCat && matchesSearch;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; background: #ffffff; border-radius: var(--radius-lg); border: 1px dashed var(--slate-300);">
+        <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">👥</div>
+        <h4 style="font-size: 1.15rem; color: var(--slate-900); font-weight: 700;">No Supervisors Found</h4>
+        <p style="color: var(--slate-500); font-size: 0.85rem; max-width: 440px; margin: 0.35rem auto 1.25rem;">
+          ${term || supervisorCategoryFilter !== 'all' ? 'Try adjusting your search criteria or category filter.' : 'No supervisors are registered yet. Onboard a domain supervisor to begin managing maintenance operations.'}
+        </p>
+        <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('btnOpenAddSupervisorModal').click()">
+          <span>➕</span> Onboard New Supervisor
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map(s => {
+    const cat = CATEGORIES[s.category] || { icon: '📋', class: 'cat-electrical' };
+    const initials = s.name.split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'SV';
+    const activeCount = s.stats.pending + s.stats.inProgress;
+
+    return `
+      <div class="supervisor-card" data-id="${s.id}">
+        <div class="supervisor-card-header">
+          <div class="supervisor-identity">
+            <div class="supervisor-avatar">${initials}</div>
+            <div>
+              <div class="supervisor-name">${escapeHtml(s.name)}</div>
+              <div class="supervisor-title">${escapeHtml(s.title)}</div>
+            </div>
+          </div>
+          <span class="badge-category ${cat.class}">${cat.icon} ${s.category}</span>
+        </div>
+
+        <div class="supervisor-contact-rows">
+          <a href="mailto:${escapeHtml(s.email)}" class="supervisor-contact-item" title="Send Official Email">
+            <span>✉️</span>
+            <span>${escapeHtml(s.email)}</span>
+          </a>
+          <a href="tel:${escapeHtml(s.phone)}" class="supervisor-contact-item" title="Call Supervisor">
+            <span>📞</span>
+            <span>${escapeHtml(s.phone)}</span>
+          </a>
+        </div>
+
+        <div class="supervisor-stats-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem;">
+            <span class="supervisor-status-pill">🟢 Active Duty</span>
+            <span style="font-size:0.75rem; font-weight:700; color:var(--slate-600);">SLA Compliance: <strong style="color:var(--emerald-600);">${s.stats.complianceRate}%</strong></span>
+          </div>
+
+          <div class="supervisor-metrics-grid">
+            <div>
+              <div class="sup-substat-val" style="color:var(--primary-700);">${activeCount}</div>
+              <div class="sup-substat-lbl">Active</div>
+            </div>
+            <div>
+              <div class="sup-substat-val" style="color:var(--amber-600);">${s.stats.pending}</div>
+              <div class="sup-substat-lbl">Pending</div>
+            </div>
+            <div>
+              <div class="sup-substat-val" style="color:var(--emerald-600);">${s.stats.resolved}</div>
+              <div class="sup-substat-lbl">Resolved</div>
+            </div>
+            <div>
+              <div class="sup-substat-val ${s.stats.breached > 0 ? 'text-red' : ''}">${s.stats.breached}</div>
+              <div class="sup-substat-lbl">Breached</div>
+            </div>
+          </div>
+
+          <div class="sla-bar" style="width:100%; height:6px;">
+            <div class="sla-bar-fill fill-ok" style="width:${s.stats.complianceRate}%;"></div>
+          </div>
+        </div>
+
+        <div class="supervisor-card-actions">
+          <button type="button" class="btn btn-outline btn-sm btn-edit-sup" data-id="${s.id}" title="Edit profile and domain">
+            ✏️ Edit Profile
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm btn-view-sup-tickets" data-category="${s.category}" title="View grievances assigned to this department">
+            📋 Grievances (${s.stats.totalAssigned})
+          </button>
+          <button type="button" class="btn btn-outline btn-sm btn-delete-sup" data-id="${s.id}" title="Remove supervisor from active duty" style="color:var(--rose-600); border-color:#fecdd3;">
+            🗑️
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Attach card listeners
+  container.querySelectorAll('.btn-edit-sup').forEach(btn => {
+    btn.addEventListener('click', () => openEditSupervisorModal(btn.dataset.id));
+  });
+
+  container.querySelectorAll('.btn-view-sup-tickets').forEach(btn => {
+    btn.addEventListener('click', () => viewSupervisorTickets(btn.dataset.category));
+  });
+
+  container.querySelectorAll('.btn-delete-sup').forEach(btn => {
+    btn.addEventListener('click', () => openDeleteSupervisorModal(btn.dataset.id));
+  });
+}
+
+function viewSupervisorTickets(category) {
+  switchModule('ledger');
+  const catSelect = document.getElementById('provostCategoryFilter');
+  if (catSelect) {
+    catSelect.value = category;
+    categoryFilter = category;
+    fetchComplaints();
+  }
+  const ledgerEl = document.getElementById('provostTableContainer');
+  if (ledgerEl) {
+    ledgerEl.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function openEditSupervisorModal(id) {
+  const sup = supervisors.find(s => s.id === id);
+  if (!sup) return;
+
+  document.getElementById('editSupId').value = sup.id;
+  document.getElementById('editSupName').value = sup.name;
+  document.getElementById('editSupEmail').value = sup.email;
+  document.getElementById('editSupPhone').value = sup.phone === 'N/A' ? '' : sup.phone;
+  document.getElementById('editSupCategory').value = sup.category;
+  document.getElementById('editSupTitle').value = sup.title;
+  document.getElementById('editSupPassword').value = '';
+  document.getElementById('editSupSubTitle').textContent = `Account: ${sup.id} (${sup.category})`;
+
+  document.getElementById('editSupervisorModal').classList.add('active');
+}
+
+function openDeleteSupervisorModal(id) {
+  const sup = supervisors.find(s => s.id === id);
+  if (!sup) return;
+
+  const activeCount = sup.stats.pending + sup.stats.inProgress;
+  document.getElementById('deleteSupId').value = sup.id;
+  document.getElementById('deleteSupTargetName').textContent = sup.name;
+  document.getElementById('deleteSupSubtitle').textContent = `Staff ID: ${sup.id} &bull; ${sup.category}`;
+
+  const reassignBlock = document.getElementById('deleteSupReassignBlock');
+  const reassignSelect = document.getElementById('deleteSupReassignSelect');
+
+  if (activeCount > 0) {
+    reassignBlock.style.display = 'block';
+    document.getElementById('deleteSupActiveCount').textContent = activeCount;
+
+    // Populate other supervisors
+    const others = supervisors.filter(s => s.id !== sup.id);
+    let optionsHtml = others.map(o => `
+      <option value="${o.id}">${escapeHtml(o.name)} (${o.category} Supervisor)</option>
+    `).join('');
+    optionsHtml += `<option value="usr_provost">Prof. (Dr.) Mohammad Faisal (Chief Provost Office)</option>`;
+    reassignSelect.innerHTML = optionsHtml;
+  } else {
+    reassignBlock.style.display = 'none';
+  }
+
+  document.getElementById('deleteSupervisorModal').classList.add('active');
+}
+
+function setupSupervisorEventListeners() {
+  // Module Switcher Tabs
+  const btnModuleLedger = document.getElementById('tabModuleLedger');
+  const btnModuleSupervisors = document.getElementById('tabModuleSupervisors');
+
+  if (btnModuleLedger && btnModuleSupervisors) {
+    btnModuleLedger.addEventListener('click', () => switchModule('ledger'));
+    btnModuleSupervisors.addEventListener('click', () => switchModule('supervisors'));
+  }
+
+  // Supervisor Search & Filter
+  const searchInput = document.getElementById('supervisorSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      supervisorSearchTerm = e.target.value;
+      renderSupervisors();
+    });
+  }
+
+  const categoryFilterSelect = document.getElementById('supervisorCategoryFilter');
+  if (categoryFilterSelect) {
+    categoryFilterSelect.addEventListener('change', (e) => {
+      supervisorCategoryFilter = e.target.value;
+      renderSupervisors();
+    });
+  }
+
+  // Onboard New Supervisor Modal
+  const btnOpenAdd = document.getElementById('btnOpenAddSupervisorModal');
+  const btnCloseAdd = document.getElementById('btnCloseAddSupervisorModal');
+  const btnCancelAdd = document.getElementById('btnCancelAddSupervisor');
+  const addModal = document.getElementById('addSupervisorModal');
+  const addForm = document.getElementById('addSupervisorForm');
+
+  if (btnOpenAdd) {
+    btnOpenAdd.addEventListener('click', () => {
+      addForm.reset();
+      document.getElementById('addSupPassword').value = 'super123';
+      addModal.classList.add('active');
+    });
+  }
+
+  const closeAddModal = () => addModal.classList.remove('active');
+  if (btnCloseAdd) btnCloseAdd.addEventListener('click', closeAddModal);
+  if (btnCancelAdd) btnCancelAdd.addEventListener('click', closeAddModal);
+
+  if (addForm) {
+    addForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btnSubmitAddSupervisor');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+
+      const payload = {
+        name: document.getElementById('addSupName').value.trim(),
+        email: document.getElementById('addSupEmail').value.trim(),
+        phone: document.getElementById('addSupPhone').value.trim(),
+        category: document.getElementById('addSupCategory').value,
+        password: document.getElementById('addSupPassword').value.trim(),
+        title: document.getElementById('addSupTitle').value.trim()
+      };
+
+      try {
+        const res = await fetch('/api/supervisors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to onboard supervisor');
+
+        closeAddModal();
+        await fetchSupervisors();
+        alert(data.message || 'Supervisor successfully registered!');
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✓ Onboard Supervisor';
+      }
+    });
+  }
+
+  // Edit Supervisor Modal
+  const editModal = document.getElementById('editSupervisorModal');
+  const btnCloseEdit = document.getElementById('btnCloseEditSupervisorModal');
+  const btnCancelEdit = document.getElementById('btnCancelEditSupervisor');
+  const editForm = document.getElementById('editSupervisorForm');
+
+  const closeEditModal = () => editModal.classList.remove('active');
+  if (btnCloseEdit) btnCloseEdit.addEventListener('click', closeEditModal);
+  if (btnCancelEdit) btnCancelEdit.addEventListener('click', closeEditModal);
+
+  if (editForm) {
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btnSubmitEditSupervisor');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+
+      const supId = document.getElementById('editSupId').value;
+      const payload = {
+        name: document.getElementById('editSupName').value.trim(),
+        email: document.getElementById('editSupEmail').value.trim(),
+        phone: document.getElementById('editSupPhone').value.trim(),
+        category: document.getElementById('editSupCategory').value,
+        title: document.getElementById('editSupTitle').value.trim(),
+        password: document.getElementById('editSupPassword').value.trim()
+      };
+
+      try {
+        const res = await fetch(`/api/supervisors/${supId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update supervisor');
+
+        closeEditModal();
+        await fetchSupervisors();
+        alert('Supervisor details updated successfully!');
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✓ Save Changes';
+      }
+    });
+  }
+
+  // Delete Supervisor Modal
+  const deleteModal = document.getElementById('deleteSupervisorModal');
+  const btnCloseDelete = document.getElementById('btnCloseDeleteSupervisorModal');
+  const btnCancelDelete = document.getElementById('btnCancelDeleteSupervisor');
+  const deleteForm = document.getElementById('deleteSupervisorForm');
+
+  const closeDeleteModal = () => deleteModal.classList.remove('active');
+  if (btnCloseDelete) btnCloseDelete.addEventListener('click', closeDeleteModal);
+  if (btnCancelDelete) btnCancelDelete.addEventListener('click', closeDeleteModal);
+
+  if (deleteForm) {
+    deleteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btnConfirmDeleteSupervisor');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Removing...';
+
+      const supId = document.getElementById('deleteSupId').value;
+      const reassignSelect = document.getElementById('deleteSupReassignSelect');
+      const payload = {
+        reassignSupervisorId: reassignSelect ? reassignSelect.value : null
+      };
+
+      try {
+        const res = await fetch(`/api/supervisors/${supId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to remove supervisor');
+
+        closeDeleteModal();
+        await fetchSupervisors();
+        alert(data.message || 'Supervisor removed successfully.');
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm Removal';
+      }
+    });
+  }
+}
+

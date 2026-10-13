@@ -95,82 +95,318 @@
       </div>
     </div>
 
-    <!-- Analytics Breakdown Row -->
-    <div class="analytics-row">
-      <!-- Category Breakdown -->
-      <div class="analytics-card">
-        <h3 class="card-heading">Complaints by Maintenance Domain</h3>
-        <p class="card-sub">Real-time counts across Electrical, Plumbing, Carpentry, Food, and Discipline</p>
-        <div id="categoryBarsContainer" class="progress-meters-list"></div>
-      </div>
+    <!-- Provost Functional Module Switcher -->
+    <div class="provost-module-switcher">
+      <button type="button" class="provost-module-btn active" id="tabModuleLedger">
+        <span class="module-btn-icon">📋</span>
+        <span class="module-btn-label">Master Grievances Surveillance</span>
+        <span class="module-btn-badge" id="badgeLedgerCount">0</span>
+      </button>
+      <button type="button" class="provost-module-btn" id="tabModuleSupervisors">
+        <span class="module-btn-icon">👥</span>
+        <span class="module-btn-label">Supervisor Management Console</span>
+        <span class="module-btn-badge" id="badgeSupervisorsCount">5</span>
+      </button>
+    </div>
 
-      <!-- Real-Time Activity Feed -->
-      <div class="analytics-card">
-        <div class="feed-header">
-          <div>
-            <h3 class="card-heading">Live Incident Stream</h3>
-            <p class="card-sub">Instant activity logs from supervisors and students in MySQL</p>
+    <!-- MODULE 1: MASTER GRIEVANCES SURVEILLANCE -->
+    <div id="ledgerModuleSection">
+      <!-- Analytics Breakdown Row -->
+      <div class="analytics-row">
+        <!-- Category Breakdown -->
+        <div class="analytics-card">
+          <h3 class="card-heading">Complaints by Maintenance Domain</h3>
+          <p class="card-sub">Real-time counts across Electrical, Plumbing, Carpentry, Food, and Discipline</p>
+          <div id="categoryBarsContainer" class="progress-meters-list"></div>
+        </div>
+
+        <!-- Real-Time Activity Feed -->
+        <div class="analytics-card">
+          <div class="feed-header">
+            <div>
+              <h3 class="card-heading">Live Incident Stream</h3>
+              <p class="card-sub">Instant activity logs from supervisors and students in MySQL</p>
+            </div>
+            <span class="live-dot-tag">Live</span>
           </div>
-          <span class="live-dot-tag">Live</span>
+          <div id="provostActivityFeed" class="activity-feed"></div>
         </div>
-        <div id="provostActivityFeed" class="activity-feed"></div>
       </div>
-    </div>
 
-    <!-- Provost Master Grievance Directory -->
-    <div class="section-toolbar" style="margin-top: 2rem;">
-      <div>
-        <h2 class="view-heading">Master Hostel Grievances Ledger</h2>
-        <p class="view-subheading">Complete directory with full inspection, escalation tracking, and supervisor oversight.</p>
-      </div>
-      <div class="toolbar-actions" style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
-        <div class="view-toggle-group" id="provostViewToggle">
-          <button type="button" class="btn btn-sm btn-outline" id="btnToggleCards">📱 Cards</button>
-          <button type="button" class="btn btn-sm btn-outline active" id="btnToggleTable">📊 Table</button>
+      <!-- Provost Master Grievance Directory -->
+      <div class="section-toolbar" style="margin-top: 2rem;">
+        <div>
+          <h2 class="view-heading">Master Hostel Grievances Ledger</h2>
+          <p class="view-subheading">Complete directory with full inspection, escalation tracking, and supervisor oversight.</p>
         </div>
-        <select id="provostCategoryFilter" class="filter-select" style="padding:0.5rem 1rem; border-radius:8px; border:1px solid var(--slate-300);">
-          <option value="all">All Categories</option>
-          <option value="Electrical">Electrical</option>
-          <option value="Plumbing">Plumbing</option>
-          <option value="Carpentry">Carpentry</option>
-          <option value="Food">Food</option>
-          <option value="Discipline">Discipline</option>
-        </select>
+        <div class="toolbar-actions" style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+          <div class="view-toggle-group" id="provostViewToggle">
+            <button type="button" class="btn btn-sm btn-outline" id="btnToggleCards">📱 Cards</button>
+            <button type="button" class="btn btn-sm btn-outline active" id="btnToggleTable">📊 Table</button>
+          </div>
+          <select id="provostCategoryFilter" class="filter-select" style="padding:0.5rem 1rem; border-radius:8px; border:1px solid var(--slate-300);">
+            <option value="all">All Categories</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="Carpentry">Carpentry</option>
+            <option value="Food">Food</option>
+            <option value="Discipline">Discipline</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Mobile Horizontal Scroll Hint -->
+      <div id="tableScrollHint" class="table-scroll-hint" style="display:none;">
+        <span>👉 Swipe horizontally across the table to inspect all columns</span>
+      </div>
+
+      <!-- Master Table View -->
+      <div class="data-table-container" id="provostTableContainer">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ticket #</th>
+              <th>Category</th>
+              <th>Hostel & Room</th>
+              <th>Student Details</th>
+              <th>Supervisor In-Charge</th>
+              <th>Assigned Professional</th>
+              <th>24h SLA Status</th>
+              <th>Status</th>
+              <th>Inspector</th>
+            </tr>
+          </thead>
+          <tbody id="provostTableBody">
+            <!-- Injected via js/provost.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Master Mobile/Cards Grid View -->
+      <div class="provost-cards-grid" id="provostCardsContainer" style="display:none;">
+        <!-- Injected via js/provost.js -->
       </div>
     </div>
 
-    <!-- Mobile Horizontal Scroll Hint -->
-    <div id="tableScrollHint" class="table-scroll-hint" style="display:none;">
-      <span>👉 Swipe horizontally across the table to inspect all columns</span>
-    </div>
+    <!-- MODULE 2: SUPERVISOR MANAGEMENT CONSOLE -->
+    <div id="supervisorsModuleSection" style="display:none;">
+      <!-- Supervisor Section Toolbar -->
+      <div class="section-toolbar" style="margin-top: 0.5rem;">
+        <div>
+          <h2 class="view-heading">Hostel Maintenance Supervisors</h2>
+          <p class="view-subheading">Supervise domain supervisors, inspect department workloads, manage contact directories, or onboard new supervisors.</p>
+        </div>
+        <div class="toolbar-actions" style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+          <input type="text" id="supervisorSearchInput" placeholder="🔍 Search supervisors..." class="form-input" style="width:220px; padding:0.48rem 0.85rem; font-size:0.84rem;">
+          <select id="supervisorCategoryFilter" class="filter-select" style="padding:0.5rem 1rem; border-radius:8px; border:1px solid var(--slate-300);">
+            <option value="all">All Domains</option>
+            <option value="Electrical">⚡ Electrical</option>
+            <option value="Plumbing">🚰 Plumbing</option>
+            <option value="Carpentry">🪚 Carpentry</option>
+            <option value="Food">🍲 Food & Catering</option>
+            <option value="Discipline">⚖️ Warden & Discipline</option>
+          </select>
+          <button type="button" class="btn btn-primary" id="btnOpenAddSupervisorModal" style="display:flex; align-items:center; gap:0.4rem;">
+            <span>➕</span> Onboard New Supervisor
+          </button>
+        </div>
+      </div>
 
-    <!-- Master Table View -->
-    <div class="data-table-container" id="provostTableContainer">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Ticket #</th>
-            <th>Category</th>
-            <th>Hostel & Room</th>
-            <th>Student Details</th>
-            <th>Supervisor In-Charge</th>
-            <th>Assigned Professional</th>
-            <th>24h SLA Status</th>
-            <th>Status</th>
-            <th>Inspector</th>
-          </tr>
-        </thead>
-        <tbody id="provostTableBody">
-          <!-- Injected via js/provost.js -->
-        </tbody>
-      </table>
-    </div>
+      <!-- Supervisors Metrics Strip -->
+      <div class="sup-summary-strip">
+        <div class="sup-metric-pill">
+          <span class="sup-metric-icon">👥</span>
+          <div>
+            <div class="sup-metric-val" id="supSummaryTotal">5</div>
+            <div class="sup-metric-lbl">Total Supervisors</div>
+          </div>
+        </div>
+        <div class="sup-metric-pill">
+          <span class="sup-metric-icon">🛡️</span>
+          <div>
+            <div class="sup-metric-val" id="supSummaryDomains">5 / 5</div>
+            <div class="sup-metric-lbl">Domains Covered</div>
+          </div>
+        </div>
+        <div class="sup-metric-pill">
+          <span class="sup-metric-icon">📥</span>
+          <div>
+            <div class="sup-metric-val" id="supSummaryActiveWorkload">0</div>
+            <div class="sup-metric-lbl">Active Tickets</div>
+          </div>
+        </div>
+        <div class="sup-metric-pill">
+          <span class="sup-metric-icon">🎯</span>
+          <div>
+            <div class="sup-metric-val text-green" id="supSummaryAvgCompliance">100%</div>
+            <div class="sup-metric-lbl">Avg. SLA Compliance</div>
+          </div>
+        </div>
+      </div>
 
-    <!-- Master Mobile/Cards Grid View -->
-    <div class="provost-cards-grid" id="provostCardsContainer" style="display:none;">
-      <!-- Injected via js/provost.js -->
+      <!-- Supervisors Grid Container -->
+      <div class="supervisors-grid" id="supervisorsCardsContainer">
+        <!-- Dynamically injected via js/provost.js -->
+      </div>
     </div>
   </main>
+
+  <!-- ========================================================
+       MODALS
+       ======================================================== -->
+
+  <!-- Add Supervisor Modal -->
+  <div id="addSupervisorModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">➕ Onboard New Supervisor</h3>
+          <p class="modal-sub">Create credentials and assign maintenance domain oversight.</p>
+        </div>
+        <button class="modal-close" id="btnCloseAddSupervisorModal">&times;</button>
+      </div>
+      <form id="addSupervisorForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="addSupName">Full Name <span class="req">*</span></label>
+            <input type="text" id="addSupName" class="form-input" placeholder="e.g. Er. Amit Sharma" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="addSupEmail">Official Email <span class="req">*</span></label>
+              <input type="email" id="addSupEmail" class="form-input" placeholder="e.g. amit.hostel@iul.ac.in" required>
+            </div>
+            <div class="form-group">
+              <label for="addSupPhone">Phone Number <span class="req">*</span></label>
+              <input type="tel" id="addSupPhone" class="form-input" placeholder="e.g. +91 94150 77889" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="addSupCategory">Assigned Maintenance Domain <span class="req">*</span></label>
+              <select id="addSupCategory" class="form-input" required>
+                <option value="">Select Domain...</option>
+                <option value="Electrical">⚡ Electrical Maintenance</option>
+                <option value="Plumbing">🚰 Water & Plumbing</option>
+                <option value="Carpentry">🪚 Carpentry & Furniture</option>
+                <option value="Food">🍲 Hostel Mess & Catering Quality</option>
+                <option value="Discipline">⚖️ Hostel Warden & Discipline Proctor</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="addSupPassword">Initial Password <span class="req">*</span></label>
+              <input type="text" id="addSupPassword" class="form-input" value="super123" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="addSupTitle">Official Designation / Title</label>
+            <input type="text" id="addSupTitle" class="form-input" placeholder="e.g. Supervisor - Electrical Maintenance">
+            <p class="form-hint" style="font-size:0.75rem; color:var(--slate-500); margin-top:0.25rem;">Leave empty to generate automatic official title based on selected domain.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelAddSupervisor">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitAddSupervisor">✓ Onboard Supervisor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Supervisor Modal -->
+  <div id="editSupervisorModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">✏️ Edit Supervisor Profile</h3>
+          <p class="modal-sub" id="editSupSubTitle">Update details and credentials</p>
+        </div>
+        <button class="modal-close" id="btnCloseEditSupervisorModal">&times;</button>
+      </div>
+      <form id="editSupervisorForm">
+        <input type="hidden" id="editSupId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editSupName">Full Name <span class="req">*</span></label>
+            <input type="text" id="editSupName" class="form-input" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editSupEmail">Official Email <span class="req">*</span></label>
+              <input type="email" id="editSupEmail" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label for="editSupPhone">Phone Number <span class="req">*</span></label>
+              <input type="tel" id="editSupPhone" class="form-input" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editSupCategory">Assigned Maintenance Domain <span class="req">*</span></label>
+              <select id="editSupCategory" class="form-input" required>
+                <option value="Electrical">⚡ Electrical Maintenance</option>
+                <option value="Plumbing">🚰 Water & Plumbing</option>
+                <option value="Carpentry">🪚 Carpentry & Furniture</option>
+                <option value="Food">🍲 Hostel Mess & Catering Quality</option>
+                <option value="Discipline">⚖️ Hostel Warden & Discipline Proctor</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editSupPassword">Reset Password (Optional)</label>
+              <input type="password" id="editSupPassword" class="form-input" placeholder="Leave blank to keep current">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="editSupTitle">Official Designation / Title <span class="req">*</span></label>
+            <input type="text" id="editSupTitle" class="form-input" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelEditSupervisor">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitEditSupervisor">✓ Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete / Reassign Supervisor Modal -->
+  <div id="deleteSupervisorModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" style="color:var(--rose-700);">🗑️ Remove Supervisor</h3>
+          <p class="modal-sub" id="deleteSupSubtitle">Review active workload and confirm removal</p>
+        </div>
+        <button class="modal-close" id="btnCloseDeleteSupervisorModal">&times;</button>
+      </div>
+      <form id="deleteSupervisorForm">
+        <input type="hidden" id="deleteSupId">
+        <div class="modal-body">
+          <div class="danger-callout" style="background:#fff1f2; border:1px solid #fecdd3; border-radius:var(--radius-md); padding:1rem; margin-bottom:1.25rem;">
+            <p style="font-weight:700; color:#9f1239; margin-bottom:0.25rem;">Action Warning</p>
+            <p style="font-size:0.86rem; color:#881337;" id="deleteSupWarningText">
+              Are you sure you want to remove supervisor <strong id="deleteSupTargetName">Supervisor</strong> from active duty?
+            </p>
+          </div>
+
+          <div id="deleteSupReassignBlock" style="display:none;">
+            <label for="deleteSupReassignSelect" style="display:block; font-size:0.82rem; font-weight:700; color:var(--slate-800); margin-bottom:0.4rem;">
+              Reassign Active Grievances To: <span class="req">*</span>
+            </label>
+            <p style="font-size:0.8rem; color:var(--slate-600); margin-bottom:0.5rem;">
+              This supervisor currently has <strong id="deleteSupActiveCount">0</strong> active grievance(s). Choose a designated supervisor to assume responsibility:
+            </p>
+            <select id="deleteSupReassignSelect" class="form-input" style="margin-bottom:0.5rem;">
+              <!-- Injected dynamically -->
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelDeleteSupervisor">Cancel</button>
+          <button type="submit" class="btn btn-danger" id="btnConfirmDeleteSupervisor" style="background:var(--rose-600); color:#ffffff;">Confirm Removal</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Inspection Modal -->
   <div id="ticketDetailModal" class="modal-overlay">

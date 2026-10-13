@@ -1578,3 +1578,276 @@ body {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
+/* ========================================================
+   PROVOST MODULE SWITCHER & SUPERVISOR MANAGEMENT
+   ======================================================== */
+.provost-module-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  padding: 0.35rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.75rem;
+}
+
+.provost-module-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--slate-600);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.provost-module-btn:hover {
+  background: var(--slate-100);
+  color: var(--slate-900);
+}
+
+.provost-module-btn.active {
+  background: var(--primary-600);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.module-btn-icon {
+  font-size: 1.15rem;
+}
+
+.module-btn-badge {
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-full);
+}
+
+.provost-module-btn.active .module-btn-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Supervisors Summary Strip */
+.sup-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sup-metric-pill {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.sup-metric-icon {
+  font-size: 1.5rem;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--slate-100);
+  flex-shrink: 0;
+}
+
+.sup-metric-val {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  line-height: 1.1;
+}
+
+.sup-metric-lbl {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--slate-500);
+  margin-top: 0.15rem;
+}
+
+/* Supervisors Grid & Cards */
+.supervisors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .supervisors-grid {
+    grid-template-columns: 1fr;
+  }
+  .provost-module-switcher {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .provost-module-btn {
+    width: 100%;
+  }
+}
+
+.supervisor-card {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.supervisor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.supervisor-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--slate-100);
+}
+
+.supervisor-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.supervisor-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+  color: var(--primary-800);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--primary-200);
+}
+
+.supervisor-name {
+  font-family: var(--font-heading);
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  line-height: 1.2;
+}
+
+.supervisor-title {
+  font-size: 0.78rem;
+  color: var(--slate-500);
+  margin-top: 0.15rem;
+}
+
+.supervisor-contact-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  background: var(--slate-50);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--slate-200);
+}
+
+.supervisor-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--slate-700);
+  transition: color var(--transition-fast);
+  word-break: break-all;
+}
+
+.supervisor-contact-item:hover {
+  color: var(--primary-600);
+}
+
+.supervisor-stats-box {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.85rem;
+}
+
+.supervisor-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  text-align: center;
+  margin-bottom: 0.65rem;
+}
+
+.sup-substat-val {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--slate-900);
+}
+
+.sup-substat-lbl {
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.supervisor-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: auto;
+  padding-top: 0.4rem;
+}
+
+.supervisor-card-actions .btn {
+  flex: 1;
+  font-size: 0.76rem;
+  padding: 0.45rem 0.5rem;
+  white-space: nowrap;
+}
+
+.supervisor-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}

@@ -197,11 +197,19 @@ Supervisors manage complaints belonging strictly to their maintenance category:
 
 ### 4.3. Chief Provost Executive Directorate
 - **User:** `Prof. (Dr.) Mohammad Faisal` (`provost@iul.ac.in`)
-- **Executive Oversight Dashboard:**
-  - Real-time university-wide metrics: Total Grievances, In Progress, Resolved Count, Active 24h SLA Breaches, and Overall SLA Compliance Rate.
-  - Category breakdown distribution.
-  - **Master Hostel Grievances Ledger:** Complete searchable table covering all residence halls (`Hall 1`, `Hall 2`, `Hall 3` for Boys and Girls).
-  - Ability to inspect any ticket's full timeline, supervisor notes, and audit history.
+- **Functional Modules:**
+  1. **Master Grievances Surveillance Module:**
+     - Real-time university-wide metrics: Total Grievances, In Progress, Resolved Count, Active 24h SLA Breaches, and Overall SLA Compliance Rate.
+     - Category breakdown distribution.
+     - **Master Hostel Grievances Ledger:** Complete searchable and filterable directory covering all residence halls (`Hall 1`, `Hall 2`, `Hall 3` for Boys and Girls) with both desktop Table and mobile Card adaptive views.
+     - Ability to inspect any ticket's full timeline, supervisor notes, and audit history.
+  2. **Supervisor Management Console:**
+     - **Active Supervisor Directory:** Inspect all registered maintenance supervisors across Electrical, Plumbing, Carpentry, Food, and Discipline domains.
+     - **Live Department Workload & Performance:** Per-supervisor counters for active complaints, pending assignment, resolved tickets, breached tickets, and individual SLA compliance percentage.
+     - **Onboard New Supervisor:** Form modal to register new domain supervisors (`name`, `email`, `phone`, `domain`, `password`, `title`).
+     - **Edit Supervisor Profile:** Modify contact numbers, job designations, maintenance domain assignments, or reset login credentials.
+     - **Remove / Reassign Supervisor:** Secure supervisor removal with required reassignment of active grievances to designated replacement staff.
+     - **Direct Grievance Inspection:** One-click navigation to inspect all grievances assigned to a specific supervisor.
 
 ---
 
@@ -230,11 +238,15 @@ The backend runs an automated background watchdog every 5 seconds (`setInterval(
 | `/api/auth/logout` | `POST` | Any | Clears session cookie (`hostel_session`) |
 | `/api/auth/me` | `GET` | Authenticated | Returns current session user object |
 | `/api/complaints` | `GET` | Authenticated | Retrieves grievances filtered by authenticated role privileges |
-| `/api/complaints` | `POST` | Student | Registers a new grievance; initiates 24h SLA and supervisor routing |
+| `/api/complaints` | `POST` | Student | Registers a new grievance; initiates 24h SLA and dynamic supervisor routing |
 | `/api/complaints/:id` | `GET` | Authenticated | Fetches single ticket details and complete timeline audit history |
 | `/api/complaints/:id/assign-professional` | `POST` | Supervisor, Provost | Dispatches field professional; transitions status to `In Progress` |
 | `/api/complaints/:id/status` | `POST` | Supervisor, Provost | Updates status (`Resolved`) and records resolution notes |
 | `/api/stats/provost` | `GET` | Provost | Fetches university-wide grievance KPIs and SLA compliance rates |
+| `/api/supervisors` | `GET` | Provost | Lists all supervisors with live department workload and SLA metrics |
+| `/api/supervisors` | `POST` | Provost | Onboards new domain supervisor with credentials and role assignment |
+| `/api/supervisors/:id` | `PUT` | Provost | Updates supervisor details, contact info, domain, and password |
+| `/api/supervisors/:id` | `DELETE` | Provost | Deletes supervisor with safety reassignment of active tickets |
 | `/api/emails` | `GET` | Authenticated | Returns dispatched email logs for transactional inspection |
 | `/api/events` | `GET` | Authenticated | Server-Sent Events (SSE) live notification stream |
 

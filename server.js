@@ -533,10 +533,21 @@ app.post('/api/complaints', requireRole(['student']), async (req, res) => {
     return res.status(400).json({ error: 'Category, Title, and Description are required.' });
   }
 
-  const supervisorInfo = SUPERVISORS[category] || { id: 'usr_sup_general', name: 'General Supervisor' };
-
   try {
     const pool = getPool();
+
+    // Dynamically lookup supervisor from database for this category
+    let supervisorInfo;
+    const [supRows] = await pool.query(
+      'SELECT id, name, title, email, phone FROM users WHERE role = "supervisor" AND category = ? LIMIT 1',
+      [category]
+    );
+    if (supRows.length > 0) {
+      supervisorInfo = { id: supRows[0].id, name: supRows[0].name, title: supRows[0].title };
+    } else {
+      supervisorInfo = SUPERVISORS[category] || { id: 'usr_provost', name: 'Chief Provost Office', title: 'Provost Directorate' };
+    }
+
     const [countRows] = await pool.query('SELECT COUNT(*) as total FROM complaints');
     const seq = String(countRows[0].total + 1).padStart(4, '0');
     let ticketNumber = `IU-HST-2026-${seq}`;
@@ -804,6 +815,250 @@ app.get('/api/stats/provost', requireRole(['provost']), async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ========================================================
+// SUPERVISOR MANAGEMENT APIS (PROVOST MODULE)
+// ========================================================
+
+// 1. Get All Supervisors with Live Workload & Performance Metrics
+app.get('/api/supervisors', requireRole(['provost']), async (req, res) => {
+  try {
+    const pool = getPool();
+    const [rows] = await pool.query(`
+      SELECT 
+        u.id, 
+        u.name, 
+        u.email, 
+        u.category, 
+        u.phone, 
+        u.title, 
+        u.created_at,
+        COUNT(c.id) AS total_assigned,
+        SUM(CASE WHEN c.status = 'Pending Assignment' THEN 1 ELSE 0 END) AS pending_count,
+        SUM(CASE WHEN c.status = 'In Progress' THEN 1 ELSE 0 END) AS in_progress_count,
+        SUM(CASE WHEN c.status = 'Resolved' THEN 1 ELSE 0 END) AS resolved_count,
+        SUM(CASE WHEN c.sla_breached = 1 AND c.status != 'Resolved' THEN 1 ELSE 0 END) AS breached_count
+      FROM users u
+      LEFT JOIN complaints c ON c.assigned_supervisor_id = u.id
+      WHERE u.role = 'supervisor'
+      GROUP BY u.id, u.name, u.email, u.category, u.phone, u.title, u.created_at
+      ORDER BY u.category ASC, u.name ASC
+    `);
+
+    const supervisors = rows.map((r) => {
+      const total = Number(r.total_assigned) || 0;
+      const resolved = Number(r.resolved_count) || 0;
+      return {
+        id: r.id,
+        name: r.name,
+        email: r.email,
+        category: r.category,
+        phone: r.phone || 'N/A',
+        title: r.title || `Supervisor - ${r.category}`,
+        createdAt: r.created_at,
+        stats: {
+          totalAssigned: total,
+          pending: Number(r.pending_count) || 0,
+          inProgress: Number(r.in_progress_count) || 0,
+          resolved: resolved,
+          breached: Number(r.breached_count) || 0,
+          complianceRate: total > 0 ? Math.round((resolved / total) * 100) : 100
+        }
+      };
+    });
+
+    res.json(supervisors);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error fetching supervisors: ' + err.message });
+  }
+});
+
+// 2. Onboard / Register New Supervisor
+app.post('/api/supervisors', requireRole(['provost']), async (req, res) => {
+  const { name, email, password, category, phone, title } = req.body;
+
+  if (!name || !email || !category) {
+    return res.status(400).json({ error: 'Name, Email, and Category are required.' });
+  }
+
+  const validCategories = ['Electrical', 'Plumbing', 'Carpentry', 'Food', 'Discipline'];
+  if (!validCategories.includes(category)) {
+    return res.status(400).json({ error: `Category must be one of: ${validCategories.join(', ')}` });
+  }
+
+  try {
+    const pool = getPool();
+    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email.trim().toLowerCase()]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'A user account with this email address already exists.' });
+    }
+
+    const newId = `usr_sup_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    const finalTitle = title && title.trim() ? title.trim() : `Supervisor - ${category} Maintenance`;
+    const finalPassword = password && password.trim() ? password.trim() : 'super123';
+
+    await pool.query(
+      `INSERT INTO users (id, role, category, name, email, password, phone, title)
+       VALUES (?, 'supervisor', ?, ?, ?, ?, ?, ?)`,
+      [newId, category, name.trim(), email.trim().toLowerCase(), finalPassword, phone ? phone.trim() : null, finalTitle]
+    );
+
+    broadcastSSE('SUPERVISORS_UPDATED', { action: 'CREATED', supervisorId: newId, category });
+
+    res.status(201).json({
+      success: true,
+      message: `Supervisor ${name.trim()} successfully registered for ${category}.`,
+      supervisor: {
+        id: newId,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        category,
+        phone: phone ? phone.trim() : '',
+        title: finalTitle
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error registering supervisor: ' + err.message });
+  }
+});
+
+// 3. Update Existing Supervisor Details
+app.put('/api/supervisors/:id', requireRole(['provost']), async (req, res) => {
+  const supervisorId = req.params.id;
+  const { name, email, password, category, phone, title } = req.body;
+
+  if (!name || !email || !category) {
+    return res.status(400).json({ error: 'Name, Email, and Category are required.' });
+  }
+
+  const validCategories = ['Electrical', 'Plumbing', 'Carpentry', 'Food', 'Discipline'];
+  if (!validCategories.includes(category)) {
+    return res.status(400).json({ error: `Category must be one of: ${validCategories.join(', ')}` });
+  }
+
+  try {
+    const pool = getPool();
+    const [existingSup] = await pool.query('SELECT * FROM users WHERE id = ? AND role = "supervisor"', [supervisorId]);
+    if (existingSup.length === 0) {
+      return res.status(404).json({ error: 'Supervisor record not found.' });
+    }
+
+    // Check email uniqueness if email has changed
+    const [dupEmail] = await pool.query('SELECT id FROM users WHERE email = ? AND id != ?', [email.trim().toLowerCase(), supervisorId]);
+    if (dupEmail.length > 0) {
+      return res.status(400).json({ error: 'Another user account already uses this email address.' });
+    }
+
+    const finalTitle = title && title.trim() ? title.trim() : `Supervisor - ${category} Maintenance`;
+
+    if (password && password.trim()) {
+      await pool.query(
+        `UPDATE users SET name = ?, email = ?, category = ?, phone = ?, title = ?, password = ? WHERE id = ?`,
+        [name.trim(), email.trim().toLowerCase(), category, phone ? phone.trim() : null, finalTitle, password.trim(), supervisorId]
+      );
+    } else {
+      await pool.query(
+        `UPDATE users SET name = ?, email = ?, category = ?, phone = ?, title = ? WHERE id = ?`,
+        [name.trim(), email.trim().toLowerCase(), category, phone ? phone.trim() : null, finalTitle, supervisorId]
+      );
+    }
+
+    // If supervisor's name changed, sync active complaints
+    if (existingSup[0].name !== name.trim()) {
+      await pool.query(
+        `UPDATE complaints SET assigned_supervisor_name = ? WHERE assigned_supervisor_id = ? AND status != 'Resolved'`,
+        [name.trim(), supervisorId]
+      );
+    }
+
+    broadcastSSE('SUPERVISORS_UPDATED', { action: 'UPDATED', supervisorId });
+
+    res.json({
+      success: true,
+      message: 'Supervisor updated successfully.',
+      supervisor: {
+        id: supervisorId,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        category,
+        phone: phone ? phone.trim() : '',
+        title: finalTitle
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error updating supervisor: ' + err.message });
+  }
+});
+
+// 4. Delete / Remove Supervisor with Reassignment
+app.delete('/api/supervisors/:id', requireRole(['provost']), async (req, res) => {
+  const supervisorId = req.params.id;
+  const { reassignSupervisorId } = req.body || {};
+
+  try {
+    const pool = getPool();
+    const [existingSup] = await pool.query('SELECT * FROM users WHERE id = ? AND role = "supervisor"', [supervisorId]);
+    if (existingSup.length === 0) {
+      return res.status(404).json({ error: 'Supervisor record not found.' });
+    }
+
+    const oldSup = existingSup[0];
+
+    // Check active complaints assigned to this supervisor
+    const [activeTickets] = await pool.query(
+      `SELECT id, ticket_number FROM complaints WHERE assigned_supervisor_id = ? AND status != 'Resolved'`,
+      [supervisorId]
+    );
+
+    if (activeTickets.length > 0) {
+      if (!reassignSupervisorId) {
+        return res.status(400).json({
+          error: `Supervisor "${oldSup.name}" currently has ${activeTickets.length} active grievance(s). Please choose a replacement supervisor to reassign these tickets before removing.`,
+          requiresReassignment: true,
+          activeCount: activeTickets.length
+        });
+      }
+
+      if (reassignSupervisorId === supervisorId) {
+        return res.status(400).json({ error: 'Cannot reassign tickets to the supervisor being removed.' });
+      }
+
+      const [newSupRows] = await pool.query('SELECT id, name FROM users WHERE id = ?', [reassignSupervisorId]);
+      if (newSupRows.length === 0) {
+        return res.status(400).json({ error: 'Selected replacement supervisor was not found.' });
+      }
+
+      const replacementSup = newSupRows[0];
+      const nowStr = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+      // Reassign open tickets
+      await pool.query(
+        `UPDATE complaints SET assigned_supervisor_id = ?, assigned_supervisor_name = ? WHERE assigned_supervisor_id = ? AND status != 'Resolved'`,
+        [replacementSup.id, replacementSup.name, supervisorId]
+      );
+
+      // Add timeline entries to all reassigned complaints
+      for (const t of activeTickets) {
+        await pool.query(
+          `INSERT INTO timeline_events (complaint_id, time, actor, action) VALUES (?, ?, ?, ?)`,
+          [t.id, nowStr, 'Chief Provost Office', `Supervisor reassigned from ${oldSup.name} to ${replacementSup.name}.`]
+        );
+      }
+    }
+
+    // Delete supervisor account
+    await pool.query('DELETE FROM users WHERE id = ?', [supervisorId]);
+
+    broadcastSSE('SUPERVISORS_UPDATED', { action: 'DELETED', supervisorId });
+
+    res.json({
+      success: true,
+      message: `Supervisor "${oldSup.name}" removed successfully.${activeTickets.length > 0 ? ` ${activeTickets.length} active grievance(s) reassigned.` : ''}`
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error removing supervisor: ' + err.message });
   }
 });
 
