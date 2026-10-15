@@ -114,15 +114,25 @@ body {
 }
 
 .brand-icon {
-  font-size: 1.85rem;
-  background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+  border: 1.5px solid rgba(147, 51, 234, 0.25);
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 1px;
+  display: block;
 }
 
 .brand-title {
@@ -612,6 +622,74 @@ body {
 
 .data-table tr.row-breached {
   background: #fff8f8;
+}
+
+/* Compact Supervisor Ledger Table Overrides */
+#supervisorTableContainer .data-table {
+  min-width: 860px;
+  table-layout: auto;
+}
+
+#supervisorTableContainer .data-table th,
+#supervisorTableContainer .data-table td {
+  padding: 0.75rem 0.55rem;
+}
+
+/* Compact Provost Master Ledger Table Overrides */
+#provostTableContainer .data-table {
+  min-width: 0;
+  width: 100%;
+  table-layout: auto;
+}
+
+#provostTableContainer .data-table th,
+#provostTableContainer .data-table td {
+  padding: 0.65rem 0.5rem;
+  font-size: 0.82rem;
+  white-space: normal;
+  vertical-align: middle;
+}
+
+#provostTableContainer .data-table th.nowrap,
+#provostTableContainer .data-table td.nowrap {
+  white-space: nowrap;
+}
+
+#provostTableContainer .btn-inspect {
+  padding: 0.38rem 0.65rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* Tab Count Badges */
+.tab-count-badge {
+  display: inline-block;
+  padding: 0.12rem 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  background: var(--slate-200);
+  color: var(--slate-700);
+  margin-left: 0.35rem;
+  vertical-align: middle;
+  transition: var(--transition-fast);
+}
+
+.filter-tab.active .tab-count-badge {
+  background: var(--primary-100);
+  color: var(--primary-700);
+}
+
+/* Clickable Executive Stat Cards */
+.stat-card[data-kpi-filter] {
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.stat-card[data-kpi-filter]:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* View Toggle Controls */
@@ -1851,3 +1929,204 @@ body {
   color: #047857;
   border: 1px solid #a7f3d0;
 }
+
+/* ========================================================
+   TECHNICIANS MANAGEMENT & DIRECTORY
+   ======================================================== */
+.workspace-tab-nav {
+  display: flex;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--slate-200);
+  padding-bottom: 0.75rem;
+  overflow-x: auto;
+}
+
+.workspace-tab-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--slate-600);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.workspace-tab-item:hover {
+  background: var(--slate-100);
+  color: var(--slate-900);
+}
+
+.workspace-tab-item.active {
+  background: #1e3a8a;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(30, 58, 138, 0.25);
+}
+
+.workspace-tab-item.active .tab-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.tab-badge {
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 700;
+  background: var(--slate-200);
+  color: var(--slate-700);
+}
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.tech-card {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.tech-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-500);
+  transform: translateY(-2px);
+}
+
+.tech-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.85rem;
+}
+
+.tech-avatar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tech-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: #eff6ff;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.15rem;
+  border: 1px solid #bfdbfe;
+  flex-shrink: 0;
+}
+
+.tech-name {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--slate-900);
+}
+
+.tech-specialty {
+  font-size: 0.78rem;
+  color: var(--slate-500);
+  margin-top: 0.1rem;
+}
+
+.tech-badge-status {
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.tech-badge-status.available {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.tech-badge-status.busy {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.tech-badge-status.on-leave {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.tech-badge-status.inactive {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.tech-card-body {
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.tech-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  color: var(--slate-700);
+  margin-bottom: 0.4rem;
+}
+
+.tech-info-row a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tech-info-row a:hover {
+  text-decoration: underline;
+}
+
+.tech-notes {
+  background: #f8fafc;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  color: var(--slate-600);
+  border-left: 3px solid #3b82f6;
+  margin-top: 0.65rem;
+}
+
+.tech-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--slate-100);
+  gap: 0.5rem;
+}
+
+.tech-card-footer .btn {
+  font-size: 0.76rem;
+  padding: 0.4rem 0.65rem;
+}
+

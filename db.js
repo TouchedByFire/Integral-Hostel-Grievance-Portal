@@ -39,12 +39,30 @@ async function initDatabase() {
         password VARCHAR(255) NOT NULL DEFAULT 'password123',
         enrollment_no VARCHAR(64) NULL UNIQUE,
         student_id VARCHAR(64) NULL,
+        campus VARCHAR(64) NULL,
+        gender VARCHAR(16) NULL,
+        emp_code VARCHAR(32) NULL,
         hostel VARCHAR(128) NULL,
         room VARCHAR(32) NULL,
         phone VARCHAR(32) NULL,
         title VARCHAR(128) NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_enrollment (enrollment_no)
+      ) ENGINE=InnoDB;
+
+      CREATE TABLE IF NOT EXISTS hostel_eligible_students (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        s_no INT,
+        enrollment_no VARCHAR(10) NOT NULL UNIQUE,
+        name VARCHAR(128) NOT NULL,
+        gender VARCHAR(16) NOT NULL,
+        campus VARCHAR(64) NOT NULL DEFAULT 'Phase I',
+        hostel VARCHAR(128) NOT NULL,
+        room VARCHAR(32) NOT NULL,
+        course VARCHAR(128) NULL,
+        mobile VARCHAR(32) NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_roster_enroll (enrollment_no)
       ) ENGINE=InnoDB;
 
       CREATE TABLE IF NOT EXISTS complaints (
@@ -54,6 +72,7 @@ async function initDatabase() {
         enrollment_no VARCHAR(64) NOT NULL,
         student_name VARCHAR(128) NOT NULL,
         student_email VARCHAR(128) NOT NULL,
+        campus VARCHAR(64) NULL,
         hostel VARCHAR(128) NOT NULL,
         room VARCHAR(32) NOT NULL,
         category ENUM('Electrical', 'Plumbing', 'Carpentry', 'Food', 'Discipline') NOT NULL,
@@ -90,79 +109,111 @@ async function initDatabase() {
         id VARCHAR(64) PRIMARY KEY,
         ticket_number VARCHAR(64) NOT NULL,
         type VARCHAR(64) NOT NULL,
+        sender_email VARCHAR(128) NOT NULL DEFAULT 'hostel@iul.ac.in',
         recipient_email VARCHAR(128) NOT NULL,
         subject VARCHAR(255) NOT NULL,
         body_html LONGTEXT NOT NULL,
         sent_at DATETIME NOT NULL
       ) ENGINE=InnoDB;
+
+      CREATE TABLE IF NOT EXISTS technicians (
+        id VARCHAR(64) PRIMARY KEY,
+        supervisor_id VARCHAR(64) NULL,
+        category VARCHAR(32) NOT NULL,
+        name VARCHAR(128) NOT NULL,
+        phone VARCHAR(32) NOT NULL,
+        specialization VARCHAR(128) NULL,
+        status ENUM('Available', 'Busy', 'On Leave', 'Inactive') DEFAULT 'Available',
+        notes TEXT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_tech_cat (category),
+        INDEX idx_tech_sup (supervisor_id)
+      ) ENGINE=InnoDB;
     `);
 
     // Ensure columns exist (migration safeguard)
+    try { await pool.query(`ALTER TABLE emails_log ADD COLUMN sender_email VARCHAR(128) NOT NULL DEFAULT 'hostel@iul.ac.in' AFTER type;`); } catch (e) {}
+    try { await pool.query(`UPDATE emails_log SET sender_email = 'hostel@iul.ac.in' WHERE sender_email IS NULL OR sender_email = '';`); } catch (e) {}
+    try { await pool.query(`ALTER TABLE users ADD COLUMN enrollment_no VARCHAR(64) NULL UNIQUE AFTER password;`); } catch (e) {}
+    try { await pool.query(`ALTER TABLE users ADD COLUMN campus VARCHAR(64) NULL AFTER student_id;`); } catch (e) {}
+    try { await pool.query(`ALTER TABLE users ADD COLUMN gender VARCHAR(16) NULL AFTER campus;`); } catch (e) {}
+    try { await pool.query(`ALTER TABLE users ADD COLUMN emp_code VARCHAR(32) NULL AFTER gender;`); } catch (e) {}
+    try { await pool.query(`ALTER TABLE complaints ADD COLUMN enrollment_no VARCHAR(64) NOT NULL DEFAULT 'IU/2023/10452' AFTER student_id;`); } catch (e) {}
+    try { await pool.query(`ALTER TABLE complaints ADD COLUMN campus VARCHAR(64) NULL AFTER student_email;`); } catch (e) {}
+    try { await pool.query(`UPDATE complaints c LEFT JOIN users u ON (c.enrollment_no = u.enrollment_no OR c.student_email = u.email) SET c.campus = COALESCE(u.campus, 'Phase I') WHERE c.campus IS NULL OR c.campus = '';`); } catch (e) {}
     try {
-      await pool.query(`ALTER TABLE users ADD COLUMN enrollment_no VARCHAR(64) NULL UNIQUE AFTER password;`);
-    } catch (e) {
-      // Column already exists, ignore
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician:', 'Assigned catering staff / food inspector:') WHERE c.category = 'Food' AND t.action LIKE '%Assigned technician:%';`);
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician', 'Assigned catering staff / food inspector:') WHERE c.category = 'Food' AND t.action LIKE '%Assigned technician%';`);
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician:', 'Assigned hostel warden / proctor:') WHERE c.category = 'Discipline' AND t.action LIKE '%Assigned technician:%';`);
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician', 'Assigned hostel warden / proctor:') WHERE c.category = 'Discipline' AND t.action LIKE '%Assigned technician%';`);
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician:', 'Assigned plumber:') WHERE c.category = 'Plumbing' AND t.action LIKE '%Assigned technician:%';`);
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician', 'Assigned plumber:') WHERE c.category = 'Plumbing' AND t.action LIKE '%Assigned technician%';`);
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician:', 'Assigned carpenter:') WHERE c.category = 'Carpentry' AND t.action LIKE '%Assigned technician:%';`);
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician', 'Assigned carpenter:') WHERE c.category = 'Carpentry' AND t.action LIKE '%Assigned technician%';`);
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician:', 'Assigned electrical technician:') WHERE c.category = 'Electrical' AND t.action LIKE '%Assigned technician:%';`);
+      await pool.query(`UPDATE timeline_events t JOIN complaints c ON t.complaint_id = c.id SET t.action = REPLACE(t.action, 'Assigned technician', 'Assigned electrical technician:') WHERE c.category = 'Electrical' AND t.action LIKE '%Assigned technician%';`);
+    } catch (e) {}
+
+    // Seed default technicians if table is empty
+    const [techCount] = await pool.query('SELECT COUNT(*) as cnt FROM technicians');
+    if (techCount[0].cnt === 0) {
+      console.log('Seeding initial available technicians for Integral University maintenance domains...');
+      await pool.query(`
+        INSERT INTO technicians (id, supervisor_id, category, name, phone, specialization, status, notes) VALUES
+        ('tech_elec_1', 'usr_sup_aamir', 'Electrical', 'Ramesh Kumar', '+91 98391 23456', 'Senior Electrician & Substation Tech', 'Available', 'Electrical power, wiring and fixtures across all halls'),
+        ('tech_elec_2', 'usr_sup_aamir', 'Electrical', 'Afzal Khan', '+91 98392 34567', 'Fan, Switchboard & Wiring Specialist', 'Available', 'General electrical maintenance & power switches'),
+        ('tech_elec_3', 'usr_sup_aamir', 'Electrical', 'Sunil Rawat', '+91 98393 45678', 'AC & Power Line Technician', 'Available', 'AC and power line maintenance'),
+        ('tech_plumb_1', 'usr_sup_zahid', 'Plumbing', 'Suresh Patel', '+91 98394 56789', 'Senior Plumber & Pipeline Technician', 'Available', 'Available 24x7 for urgent hostel pipeline leaks'),
+        ('tech_plumb_2', 'usr_sup_zahid', 'Plumbing', 'Imran Ali', '+91 98395 67890', 'Geyser & Water Tank Specialist', 'Available', 'Morning and evening washroom maintenance'),
+        ('tech_plumb_3', 'usr_sup_zahid', 'Plumbing', 'Dinesh Yadav', '+91 98396 78901', 'Washroom & Sanitary Fittings Tech', 'Available', 'Drainage clearing & tap valve replacements'),
+        ('tech_carp_1', 'usr_sup_irfan', 'Carpentry', 'Master Aslam', '+91 98397 89012', 'Senior Carpenter & Furniture Master', 'Available', 'Almirah doors, study desks and bed joints'),
+        ('tech_carp_2', 'usr_sup_irfan', 'Carpentry', 'Vikas Verma', '+91 98398 90123', 'Door, Lock & Window Tech', 'Available', 'Lock replacements, handles and tower bolts'),
+        ('tech_carp_3', 'usr_sup_irfan', 'Carpentry', 'Nafees Ahmad', '+91 98399 11223', 'Furniture & Structural Woodwork', 'Available', 'Study desks, bed frames and wardrobes'),
+        ('staff_food_1', 'usr_sup_salman', 'Food', 'Chef Qadir Ahmad', '+91 98399 01234', 'Hostel Mess & Catering Supervisor', 'Available', 'Meal quality, portioning and kitchen hygiene inspections'),
+        ('staff_food_2', 'usr_sup_salman', 'Food', 'Naeem Khan', '+91 98400 12345', 'Kitchen Hygiene & Water Safety Inspector', 'Available', 'R.O. water coolers and dish washing sanitation'),
+        ('staff_food_3', 'usr_sup_salman', 'Food', 'Shakeel Akhtar', '+91 98403 45678', 'Dining Hall Head Steward', 'Available', 'Hostel mess dining operations and breakfast service'),
+        ('staff_disc_1', 'usr_sup_saba', 'Discipline', 'Mahendra Singh', '+91 98401 23456', 'Hostel Warden & Security Marshal', 'Available', 'Gate logs, night attendance and silent hours enforcement'),
+        ('staff_disc_2', 'usr_sup_saba', 'Discipline', 'Shakeel Ahmad', '+91 98402 34567', 'Floor Proctor & Wing Assistant', 'Available', 'Student welfare and room occupancy checks'),
+        ('staff_disc_3', 'usr_sup_saba', 'Discipline', 'Rehana Bano', '+91 98405 67890', 'Girls Wing Assistant Warden', 'Available', 'Student welfare, quiet hours and entry registry');
+      `);
+      console.log('✓ Seeded available technicians.');
     }
+
+    // Ensure all technicians are Available for testing
     try {
-      await pool.query(`ALTER TABLE complaints ADD COLUMN enrollment_no VARCHAR(64) NOT NULL DEFAULT 'IU/2023/10452' AFTER student_id;`);
-    } catch (e) {
-      // Column already exists, ignore
-    }
+      await pool.query("UPDATE technicians SET status = 'Available' WHERE status != 'Available'");
+    } catch (e) {}
 
     console.log('✓ MySQL schema & tables verified for Integral University.');
 
-    // Seed / Reset users with Integral University credentials
-    const [existingUsers] = await pool.query('SELECT COUNT(*) as cnt FROM users WHERE email = ?', ['provost@iul.ac.in']);
-    if (existingUsers[0].cnt === 0) {
-      console.log('Populating Integral University staff and student profiles...');
+    // Seed / Ensure official Integral University staff profiles (5 Supervisors + Provost only, no dummy students)
+    const staffProfiles = [
+      ['usr_sup_aamir', 'supervisor', 'Electrical', 'Mohd Aamir Khan', 'maamirk@iul.ac.in', 'password123', 'All Hostels', 'Boy', '+91 94558 96120', 'Supervisor - Department of Electrical & Power Maintenance', 'A00310'],
+      ['usr_sup_zahid', 'supervisor', 'Plumbing', 'Zahid Raza', 'zahidraza@iul.ac.in', 'password123', 'All Hostels', 'Boy', '+91 82998 99297', 'Supervisor - Department of Plumbing & Water Sanitation', 'A00219'],
+      ['usr_sup_irfan', 'supervisor', 'Carpentry', 'Dr. Irfan Ahmad Siddiqui', 'iasiddiqui@iul.ac.in', 'password123', 'All Hostels', 'Boy', '+91 98383 26547', 'Supervisor - Department of Carpentry & Civil Infrastructure', 'A00325'],
+      ['usr_sup_salman', 'supervisor', 'Food', 'Dr. Salman', 'salman@iul.ac.in', 'password123', 'All Hostels', 'Boy', '+91 98399 01234', 'Supervisor - Department of Hostel Mess & Food Quality', 'A00512'],
+      ['usr_sup_saba', 'supervisor', 'Discipline', 'Dr. Saba', 'saba@iul.ac.in', 'password123', 'All Hostels', 'Girl', '+91 98401 23456', 'Proctor - Department of Hostel Discipline & Student Welfare', 'A00525'],
+      ['usr_provost', 'provost', null, 'Prof. (Dr.) Mohammad Faisal', 'provost@iul.ac.in', 'provost123', null, null, '+91 94150 99887', 'Provost - Integral University Hostels', null]
+    ];
+
+    for (const s of staffProfiles) {
       await pool.query(`
-        DELETE FROM users;
-        INSERT INTO users (id, role, category, name, email, password, enrollment_no, student_id, hostel, room, phone, title) VALUES
-        ('usr_student_1', 'student', NULL, 'Mohammad Zaid', 'zaid@iul.ac.in', 'student123', 'IU/2023/10452', 'IU/2023/10452', 'Hall 1 (Boys)', 'K-312', '+91 98765 43210', 'B.Tech CSE Student'),
-        ('usr_student_2', 'student', NULL, 'Farhan Ali', 'farhan@iul.ac.in', 'student123', 'IU/2023/20188', 'IU/2023/20188', 'Hall 2 (Boys)', 'C-204', '+91 98123 45678', 'B.Tech ME Student'),
-        ('usr_student_3', 'student', NULL, 'Ayesha Khan', 'ayesha@iul.ac.in', 'student123', 'IU/2023/30514', 'IU/2023/30514', 'Hall 1 (Girls)', 'H-118', '+91 97234 56789', 'BCA Student'),
-        ('usr_sup_electrical', 'supervisor', 'Electrical', 'Rajesh Verma', 'electrical.hostel@iul.ac.in', 'super123', NULL, NULL, NULL, NULL, '+91 94150 11223', 'Supervisor - Electrical Maintenance'),
-        ('usr_sup_plumbing', 'supervisor', 'Plumbing', 'Suresh Patel', 'plumbing.hostel@iul.ac.in', 'super123', NULL, NULL, NULL, NULL, '+91 94150 22334', 'Supervisor - Water & Plumbing Systems'),
-        ('usr_sup_carpentry', 'supervisor', 'Carpentry', 'Mohan Lal', 'carpentry.hostel@iul.ac.in', 'super123', NULL, NULL, NULL, NULL, '+91 94150 33445', 'Supervisor - Carpentry & Furniture'),
-        ('usr_sup_food', 'supervisor', 'Food', 'Anil Deshmukh', 'food.hostel@iul.ac.in', 'super123', NULL, NULL, NULL, NULL, '+91 94150 44556', 'Supervisor - Hostel Mess & Catering Quality'),
-        ('usr_sup_discipline', 'supervisor', 'Discipline', 'Col. R. Singh', 'discipline.hostel@iul.ac.in', 'super123', NULL, NULL, NULL, NULL, '+91 94150 55667', 'Hostel Warden & Discipline Proctor'),
-        ('usr_provost', 'provost', NULL, 'Prof. (Dr.) Mohammad Faisal', 'provost@iul.ac.in', 'provost123', NULL, NULL, NULL, NULL, '+91 94150 99887', 'Chief Provost - Integral University Hostels');
-      `);
-      console.log('✓ Seeded Integral University users.');
+        INSERT INTO users (id, role, category, name, email, password, campus, gender, phone, title, emp_code)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+          name = VALUES(name),
+          email = VALUES(email),
+          password = VALUES(password),
+          role = VALUES(role),
+          category = VALUES(category),
+          phone = VALUES(phone),
+          title = VALUES(title),
+          emp_code = VALUES(emp_code),
+          campus = VALUES(campus),
+          gender = VALUES(gender)
+      `, s);
     }
-
-    // Refresh default complaints with Integral University context if empty
-    const [cRows] = await pool.query('SELECT COUNT(*) as cnt FROM complaints WHERE student_email = ?', ['zaid@iul.ac.in']);
-    if (cRows[0].cnt === 0) {
-      console.log('Seeding initial complaints for Integral University...');
-      const now = new Date();
-      const past20h = new Date(now.getTime() - 20 * 3600 * 1000).toISOString().slice(0, 19).replace('T', ' ');
-      const past2h = new Date(now.getTime() - 2 * 3600 * 1000).toISOString().slice(0, 19).replace('T', ' ');
-      const past10h = new Date(now.getTime() - 10 * 3600 * 1000).toISOString().slice(0, 19).replace('T', ' ');
-      const future14h = new Date(now.getTime() + 14 * 3600 * 1000).toISOString().slice(0, 19).replace('T', ' ');
-      const past3h = new Date(now.getTime() - 3 * 3600 * 1000).toISOString().slice(0, 19).replace('T', ' ');
-      const future21h = new Date(now.getTime() + 21 * 3600 * 1000).toISOString().slice(0, 19).replace('T', ' ');
-
-      await pool.query(`
-        INSERT INTO complaints (id, ticket_number, student_id, enrollment_no, student_name, student_email, hostel, room, category, title, description, priority, status, created_at, deadline, assigned_supervisor_id, assigned_supervisor_name, professional_name, professional_phone, expected_visit_time, professional_notes, professional_assigned_at, resolution_notes, resolved_at, resolved_by, sla_breached, apology_email_sent)
-        VALUES 
-        ('IU-HST-2026-0001', 'IU-HST-2026-0001', 'IU/2023/10452', 'IU/2023/10452', 'Mohammad Zaid', 'zaid@iul.ac.in', 'Hall 1 (Boys)', 'K-312', 'Electrical', 'Ceiling fan making rattling noise at high speed', 'Fan capacitor or bearings need lubrication and check in Room K-312.', 'High', 'Resolved', '${past20h}', '${past20h}', 'usr_sup_electrical', 'Rajesh Verma', 'Ramesh Kumar (Electrician)', '+91 98234 56789', 'Yesterday at 5:00 PM', 'Replace 2.5mfd capacitor and greased ball bearings', '${past20h}', 'Replaced capacitor and serviced ceiling fan assembly. Running noiselessly.', '${past2h}', 'Rajesh Verma', 0, 0),
-        ('IU-HST-2026-0002', 'IU-HST-2026-0002', 'IU/2023/10452', 'IU/2023/10452', 'Mohammad Zaid', 'zaid@iul.ac.in', 'Hall 1 (Boys)', 'K-312', 'Plumbing', 'Bathroom geyser water inlet valve dripping', 'Continuous dripping from the cold water connection pipe.', 'Normal', 'In Progress', '${past10h}', '${future14h}', 'usr_sup_plumbing', 'Suresh Patel', 'Satish Yadav (Plumber)', '+91 98112 34567', 'Today at 2:30 PM', 'Check flexible hose and washers', '${past10h}', NULL, NULL, NULL, 0, 0),
-        ('IU-HST-2026-0003', 'IU-HST-2026-0003', 'IU/2023/20188', 'IU/2023/20188', 'Farhan Ali', 'farhan@iul.ac.in', 'Hall 2 (Boys)', 'C-204', 'Food', 'Mess lunch rotis cold and delayed service in Dining Hall 1', 'Food was served cold and food warmers were not active today.', 'Normal', 'Pending Assignment', '${past3h}', '${future21h}', 'usr_sup_food', 'Anil Deshmukh', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0);
-      `);
-
-      await pool.query(`
-        INSERT INTO timeline_events (complaint_id, time, actor, action) VALUES
-        ('IU-HST-2026-0001', '${past20h}', 'Mohammad Zaid (Student)', 'Complaint registered. 24-Hour SLA initiated.'),
-        ('IU-HST-2026-0001', '${past20h}', 'Rajesh Verma (Supervisor)', 'Assigned Electrician Ramesh Kumar (+91 98234 56789).'),
-        ('IU-HST-2026-0001', '${past2h}', 'Rajesh Verma (Supervisor)', 'Marked Resolved. Replaced capacitor and serviced fan.'),
-        ('IU-HST-2026-0002', '${past10h}', 'Mohammad Zaid (Student)', 'Complaint registered. 24-Hour SLA initiated.'),
-        ('IU-HST-2026-0002', '${past10h}', 'Suresh Patel (Supervisor)', 'Assigned Plumber Satish Yadav (+91 98112 34567).'),
-        ('IU-HST-2026-0003', '${past3h}', 'Farhan Ali (Student)', 'Complaint registered in Food & Mess category.');
-      `);
-
-      console.log('✓ Seeded initial complaints for Integral University.');
-    }
+    console.log('✓ Verified 5 Supervisors & Provost accounts in database (Zero dummy complaints/students).');
 
     return pool;
   } catch (err) {

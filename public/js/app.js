@@ -219,7 +219,7 @@ function renderRoleBanner() {
 
   let avatar = '🎓';
   let roleTitle = 'Hostel Student';
-  let metaInfo = `${user.hostel} &bull; Room ${user.room} &bull; ID: ${user.studentId}`;
+  let metaInfo = `${user.campus || 'Phase I'} &bull; ${user.hostel} &bull; Room ${user.room} &bull; ID: ${user.studentId}`;
   let slaBadge = `
     <div class="banner-badge-sla">
       <div class="banner-sla-title">Guaranteed Resolution SLA</div>
@@ -240,7 +240,7 @@ function renderRoleBanner() {
     `;
   } else if (user.role === 'provost') {
     avatar = '🏛️';
-    roleTitle = 'Chief Provost';
+    roleTitle = 'Provost';
     metaInfo = `${user.title} &bull; Full Campus Jurisdiction &bull; Executive Real-Time Dashboard`;
     slaBadge = `
       <div class="banner-badge-sla">
@@ -490,7 +490,7 @@ function renderSupervisorView() {
         <td><strong style="color:var(--primary-800);">#${t.ticketNumber}</strong></td>
         <td>
           <div style="font-weight:600;">${escapeHtml(t.studentName)}</div>
-          <div style="font-size:0.75rem; color:var(--slate-500);">${escapeHtml(t.hostel)} - Room ${escapeHtml(t.room)}</div>
+          <div style="font-size:0.75rem; color:var(--slate-500);">${escapeHtml(t.campus || 'Phase I')} &bull; ${escapeHtml(t.hostel)} - Room ${escapeHtml(t.room)}</div>
         </td>
         <td>
           <div style="font-weight:600; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -604,6 +604,7 @@ async function renderProvostView() {
             <td><strong>#${t.ticketNumber}</strong></td>
             <td><span class="badge-category ${cat.class}">${cat.icon} ${t.category}</span></td>
             <td>
+              <div style="font-size:0.72rem; font-weight:700; color:var(--primary-700); text-transform:uppercase; letter-spacing:0.03em;">${escapeHtml(t.campus || 'Phase I')}</div>
               <div style="font-weight:600;">${escapeHtml(t.hostel)}</div>
               <div style="font-size:0.75rem; color:var(--slate-500);">Room: ${escapeHtml(t.room)}</div>
             </td>
@@ -775,12 +776,12 @@ function openAssignModal(ticketId) {
   document.getElementById('assignModalSubtitle').textContent = `Designate technician for Ticket #${ticket.ticketNumber} [${ticket.category}]`;
   document.getElementById('assignTicketSummaryBanner').innerHTML = `
     <strong>${escapeHtml(ticket.title)}</strong><br>
-    <span style="color:var(--slate-500); font-size:0.8rem;">Student: ${escapeHtml(ticket.studentName)} (${escapeHtml(ticket.hostel)} - Room ${escapeHtml(ticket.room)})</span>
+    <span style="color:var(--slate-500); font-size:0.8rem;">Student: ${escapeHtml(ticket.studentName)} (${escapeHtml(ticket.campus || 'Phase I')} &bull; ${escapeHtml(ticket.hostel)} - Room ${escapeHtml(ticket.room)})</span>
   `;
 
   document.getElementById('profName').value = ticket.assignedProfessional?.name || '';
   document.getElementById('profPhone').value = ticket.assignedProfessional?.phone || '';
-  document.getElementById('profVisitTime').value = ticket.assignedProfessional?.expectedVisitTime || 'Today at 3:00 PM';
+  document.getElementById('profVisitTime').value = ticket.assignedProfessional?.expectedVisitTime || '';
   document.getElementById('profNotes').value = ticket.assignedProfessional?.notes || '';
 
   document.getElementById('assignProfessionalModal').classList.add('active');
@@ -828,7 +829,7 @@ function openResolveModal(ticketId) {
   document.getElementById('resolveTicketId').value = ticket.id;
   document.getElementById('resolveTicketSummaryBanner').innerHTML = `
     <strong>#${ticket.ticketNumber} - ${escapeHtml(ticket.title)}</strong><br>
-    <span style="color:var(--slate-500); font-size:0.8rem;">Student: ${escapeHtml(ticket.studentName)} &bull; ${escapeHtml(ticket.hostel)} - Room ${escapeHtml(ticket.room)}</span>
+    <span style="color:var(--slate-500); font-size:0.8rem;">Student: ${escapeHtml(ticket.studentName)} &bull; ${escapeHtml(ticket.campus || 'Phase I')} &bull; ${escapeHtml(ticket.hostel)} - Room ${escapeHtml(ticket.room)}</span>
   `;
   document.getElementById('resolutionNotes').value = '';
 
@@ -879,7 +880,7 @@ function openDetailModal(ticketId) {
   document.getElementById('modalCategoryBadge').innerHTML = `${cat.icon} ${ticket.category}`;
   document.getElementById('modalTicketTitle').textContent = ticket.title;
   document.getElementById('modalTicketMeta').innerHTML = `
-    <strong>#${ticket.ticketNumber}</strong> &bull; Student: <strong>${escapeHtml(ticket.studentName)}</strong> (${escapeHtml(ticket.hostel)} - Room ${escapeHtml(ticket.room)}) &bull; Priority: <strong>${ticket.priority}</strong>
+    <strong>#${ticket.ticketNumber}</strong> &bull; Student: <strong>${escapeHtml(ticket.studentName)}</strong> (${escapeHtml(ticket.campus || 'Phase I')} &bull; ${escapeHtml(ticket.hostel)} - Room ${escapeHtml(ticket.room)}) &bull; Priority: <strong>${ticket.priority}</strong>
   `;
 
   document.getElementById('modalDescriptionBox').textContent = ticket.description;
@@ -936,7 +937,7 @@ function openDetailModal(ticketId) {
     <div class="timeline-item">
       <div class="timeline-time">${new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; ${new Date(item.time).toLocaleDateString()}</div>
       <div class="timeline-actor">${escapeHtml(item.actor)}</div>
-      <div class="timeline-action">${escapeHtml(item.action)}</div>
+      <div class="timeline-action">${escapeHtml(formatTimelineActionForUI(item.action, ticket.category))}</div>
     </div>
   `).join('');
 
@@ -986,7 +987,10 @@ async function openEmailOutbox() {
           <div class="outbox-item ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
             <span class="outbox-item-type" style="${typeBadge}">${em.type.replace(/_/g, ' ')}</span>
             <div class="outbox-item-subject">${escapeHtml(em.subject)}</div>
-            <div class="outbox-item-to">To: ${escapeHtml(em.to)} &bull; ${formatTimeAgo(em.sentAt)}</div>
+            <div class="outbox-item-to" style="font-size:0.75rem; color:var(--slate-500); margin-top:2px;">
+              <span>From: <strong style="color:var(--primary-700);">${escapeHtml(em.from || 'hostel@iul.ac.in')}</strong></span><br>
+              <span>To: ${escapeHtml(em.to)} &bull; ${formatTimeAgo(em.sentAt)}</span>
+            </div>
           </div>
         `;
       }).join('');
@@ -1014,14 +1018,19 @@ function renderEmailPreview(idx) {
   const preview = document.getElementById('emailOutboxPreview');
   const em = state.emails[idx];
   if (!preview || !em) return;
+  const fromAddr = em.from || 'hostel@iul.ac.in';
 
   preview.innerHTML = `
     <div style="border-bottom: 1px solid var(--slate-200); padding-bottom: 0.85rem; margin-bottom: 1rem;">
       <h4 style="font-size:1.1rem; color:var(--slate-900);">${escapeHtml(em.subject)}</h4>
-      <div style="font-size:0.8rem; color:var(--slate-500); margin-top:0.25rem;">
-        <strong>To:</strong> ${escapeHtml(em.to)} &bull; 
-        <strong>Sent:</strong> ${new Date(em.sentAt).toLocaleString()} &bull; 
-        <strong>Ticket:</strong> #${em.ticketNumber}
+      <div style="font-size:0.8rem; color:var(--slate-600); margin-top:0.35rem; display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center;">
+        <span><strong>From:</strong> <span style="color:var(--primary-700); font-weight:700;">${escapeHtml(fromAddr)}</span></span>
+        <span>&bull;</span>
+        <span><strong>To:</strong> ${escapeHtml(em.to)}</span>
+        <span>&bull;</span>
+        <span><strong>Sent:</strong> ${new Date(em.sentAt).toLocaleString()}</span>
+        <span>&bull;</span>
+        <span><strong>Ticket:</strong> #${em.ticketNumber}</span>
       </div>
     </div>
     <div style="background:#ffffff; border-radius:8px;">
@@ -1064,7 +1073,7 @@ async function handleFastForwardClick() {
 }
 
 function simulatePingSupervisor(supervisorName) {
-  showToast('Supervisor Alerted', `Urgent high-priority reminder sent from Chief Provost to ${supervisorName}.`);
+  showToast('Supervisor Alerted', `Urgent high-priority reminder sent from Provost to ${supervisorName}.`);
 }
 
 // Utilities
@@ -1089,6 +1098,39 @@ function escapeHtml(str) {
       "'": '&#039;'
     }[m];
   });
+}
+
+function formatTimelineActionForUI(actionText, category) {
+  if (!actionText) return '';
+  let text = actionText;
+  const cat = (category || '').toLowerCase();
+
+  if (cat.includes('food')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned catering staff / food inspector:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Catering staff / food inspector assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'catering staff member');
+    text = text.replace(/\btechnicians?\b/gi, 'catering staff');
+  } else if (cat.includes('discipline')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned hostel warden / proctor:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Hostel warden / proctor assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'hostel warden / proctor');
+    text = text.replace(/\btechnicians?\b/gi, 'warden/proctor');
+  } else if (cat.includes('plumb')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned plumber:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Plumber assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'plumber');
+    text = text.replace(/\btechnicians?\b/gi, 'plumber');
+  } else if (cat.includes('carpent')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned carpenter:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Carpenter assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'carpenter');
+    text = text.replace(/\btechnicians?\b/gi, 'carpenter');
+  } else if (cat.includes('elect')) {
+    text = text.replace(/Assigned\s+technician:?/gi, 'Assigned electrical technician:');
+  } else {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned field professional:');
+  }
+  return text;
 }
 
 function showToast(title, message, isAlert = false) {

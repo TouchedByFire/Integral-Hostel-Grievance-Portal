@@ -1,0 +1,200 @@
+[
+  {
+    "sNo": 1,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 1",
+    "room": "A006",
+    "enrollmentNo": "2600105579",
+    "name": "Mohd Uzair",
+    "course": "B.Tech CSE",
+    "mobile": "9196033741"
+  },
+  {
+    "sNo": 2,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 1",
+    "room": "A018",
+    "enrollmentNo": "2600106857",
+    "name": "Azmat Hussain",
+    "course": "D.Pharma.",
+    "mobile": "9555042232"
+  },
+  {
+    "sNo": 3,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 2",
+    "room": "B114",
+    "enrollmentNo": "2500100625",
+    "name": "Reyan Ahmad",
+    "course": "B.Tech. CSE",
+    "mobile": "7800517954"
+  },
+  {
+    "sNo": 4,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 2",
+    "room": "B319",
+    "enrollmentNo": "2500100088",
+    "name": "Mohd Raihan",
+    "course": "BCA",
+    "mobile": "8218102436"
+  },
+  {
+    "sNo": 5,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 3",
+    "room": "C043",
+    "enrollmentNo": "2202300167",
+    "name": "Hemant Kumar",
+    "course": "M.B.B.S.",
+    "mobile": "9068435354"
+  },
+  {
+    "sNo": 6,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 3",
+    "room": "C108",
+    "enrollmentNo": "2302300070",
+    "name": "Matlub Khan",
+    "course": "M.B.B.S.",
+    "mobile": "9981356068"
+  },
+  {
+    "sNo": 7,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 4",
+    "room": "14",
+    "enrollmentNo": "2400101765",
+    "name": "Md Atif Ahmad",
+    "course": "B.Tech. CSE",
+    "mobile": "8709931805"
+  },
+  {
+    "sNo": 8,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 4",
+    "room": "307",
+    "enrollmentNo": "2500102551",
+    "name": "Sameer Khan",
+    "course": "B.M.L.S",
+    "mobile": "9026415063"
+  },
+  {
+    "sNo": 9,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 5",
+    "room": "507",
+    "enrollmentNo": "2600104302",
+    "name": "Rehan Azam",
+    "course": "B.A. LLB",
+    "mobile": "8797167414"
+  },
+  {
+    "sNo": 10,
+    "gender": "Boy",
+    "campus": "Phase I",
+    "hostel": "Hall 5",
+    "room": "513",
+    "enrollmentNo": "2600105227",
+    "name": "Mohammad Hamza",
+    "course": "B.Com.",
+    "mobile": "8115294779"
+  },
+  {
+    "sNo": 11,
+    "gender": "Girl",
+    "campus": "Phase I",
+    "hostel": "Block A",
+    "room": "28",
+    "enrollmentNo": "2600102646",
+    "name": "Priya Gupta",
+    "course": "B.M.L.S",
+    "mobile": "7275974900"
+  },
+  {
+    "sNo": 12,
+    "gender": "Girl",
+    "campus": "Phase I",
+    "hostel": "Block A",
+    "room": "329",
+    "enrollmentNo": "2600104363",
+    "name": "Rushda Khanam",
+    "course": "B.Sc. Nursing",
+    "mobile": "8090498537"
+  },
+  {
+    "sNo": 13,
+    "gender": "Girl",
+    "campus": "Phase I",
+    "hostel": "Block A",
+    "room": "122",
+    "enrollmentNo": "2500102022",
+    "name": "Infal Jaha",
+    "course": "B.C.A.",
+    "mobile": "9153651005"
+  },
+  {
+    "sNo": 14,
+    "gender": "Girl",
+    "campus": "Phase I",
+    "hostel": "Block A",
+    "room": "628",
+    "enrollmentNo": "2500101327",
+    "name": "Anam Khan",
+    "course": "B.Tech. CSE",
+    "mobile": "9118925374"
+  },
+  {
+    "sNo": 15,
+    "gender": "Girl",
+    "campus": "Phase I",
+    "hostel": "Block B",
+    "room": "705B",
+    "enrollmentNo": "2400102087",
+    "name": "Sobiya",
+    "course": "B.Tech. CSE",
+    "mobile": "9118292883"
+  },
+  {
+    "sNo": 16,
+    "gender": "Girl",
+    "campus": "Phase I",
+    "hostel": "Block B",
+    "room": "738B",
+    "enrollmentNo": "2300102987",
+    "name": "Zara Jamal",
+    "course": "B.Pharma",
+    "mobile": "7753883263"
+  },
+  {
+    "sNo": 17,
+    "gender": "Girl",
+    "campus": "Phase I",
+    "hostel": "Block C",
+    "room": "414",
+    "enrollmentNo": "2600106744",
+    "name": "Mahnaz Fatma",
+    "course": "M.Pharm",
+    "mobile": "9415665361"
+  },
+  {
+    "sNo": 18,
+    "gender": "Girl",
+    "campus": "Phase I",
+    "hostel": "Block C",
+    "room": "723",
+    "enrollmentNo": "2500100176",
+    "name": "Naila Khan",
+    "course": "M.C.A.",
+    "mobile": "6387007244"
+  }
+]

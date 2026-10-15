@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="/images/logo.png">
 </head>
 <body>
 
@@ -15,10 +16,12 @@
   <header class="app-header">
     <div class="header-container">
       <div class="brand-area">
-        <div class="brand-icon">🏛️</div>
+        <div class="brand-icon">
+          <img src="/images/logo.png" alt="Integral University Logo">
+        </div>
         <div>
-          <h1 class="brand-title">HostelCare</h1>
-          <p class="brand-sub">Student Grievance & Redressal Portal</p>
+          <h1 class="brand-title">IntegraCare</h1>
+          <p class="brand-sub">Integral University &bull; Hostel Grievance Portal</p>
         </div>
       </div>
 
@@ -38,7 +41,7 @@
             <option value="usr_sup_discipline">⚖️ Discipline Proctor: Col. R. Singh</option>
           </optgroup>
           <optgroup label="Hostel Executive Oversight">
-            <option value="usr_provost">🏛️ Chief Provost: Prof. (Dr.) Mohammad Faisal</option>
+            <option value="usr_provost">🏛️ Provost: Prof. (Dr.) Mohammad Faisal</option>
           </optgroup>
         </select>
       </div>
@@ -89,7 +92,7 @@
           <button class="filter-tab" data-filter="resolved">✓ Resolved</button>
         </div>
         <div class="search-box">
-          <input type="text" id="studentSearchInput" placeholder="Search by title, ticket #, category...">
+          <input type="text" id="studentSearchInput" aria-label="Search grievances">
         </div>
       </div>
 
@@ -184,8 +187,7 @@
       <!-- Real-time Provost Header -->
       <div class="provost-header-card">
         <div class="provost-header-info">
-          <span class="live-pulse-badge">🔴 REAL-TIME HOSTEL SURVEILLANCE</span>
-          <h2 class="provost-title">Chief Provost Executive Dashboard</h2>
+          <h2 class="provost-title">Provost Executive Dashboard</h2>
           <p class="provost-sub">Central real-time monitoring of all student grievances, supervisor performance, and 24-hour SLA compliance across all hostel blocks.</p>
         </div>
         <div class="provost-header-actions">
@@ -292,7 +294,7 @@
             <tr>
               <th>Ticket #</th>
               <th>Category</th>
-              <th>Hostel & Room</th>
+              <th>Campus, Hostel & Room</th>
               <th>Student Details</th>
               <th>Supervisor In-Charge</th>
               <th>Assigned Professional</th>
@@ -347,12 +349,12 @@
 
         <div class="form-group">
           <label for="complaintTitle">Grievance Subject / Title <span class="req">*</span></label>
-          <input type="text" id="complaintTitle" class="form-input" placeholder="e.g. Ceiling fan regulator not working and sparks" required>
+          <input type="text" id="complaintTitle" class="form-input" required>
         </div>
 
         <div class="form-group">
           <label for="complaintDescription">Detailed Description <span class="req">*</span></label>
-          <textarea id="complaintDescription" class="form-input" rows="4" placeholder="Provide exact details of the issue to help the supervisor dispatch the right technician..." required></textarea>
+          <textarea id="complaintDescription" class="form-input" rows="4" required></textarea>
         </div>
 
         <div class="form-row">
@@ -402,22 +404,22 @@
         <div class="form-row">
           <div class="form-group">
             <label for="profName">Technician / Professional Full Name <span class="req">*</span></label>
-            <input type="text" id="profName" class="form-input" placeholder="e.g. Ramesh Kumar (Electrician)" required>
+            <input type="text" id="profName" class="form-input" required>
           </div>
           <div class="form-group">
             <label for="profPhone">Professional Mobile / Contact No. <span class="req">*</span></label>
-            <input type="text" id="profPhone" class="form-input" placeholder="e.g. +91 98234 56789" required>
+            <input type="text" id="profPhone" class="form-input" required>
           </div>
         </div>
 
         <div class="form-group">
           <label for="profVisitTime">Expected Visit Date & Time <span class="req">*</span></label>
-          <input type="text" id="profVisitTime" class="form-input" placeholder="e.g. Today between 2:00 PM - 3:30 PM" required>
+          <input type="text" id="profVisitTime" class="form-input" required>
         </div>
 
         <div class="form-group">
           <label for="profNotes">Special Work Order Notes / Instructions</label>
-          <textarea id="profNotes" class="form-input" rows="2" placeholder="e.g. Bring 16A switch board and check phase voltage..."></textarea>
+          <textarea id="profNotes" class="form-input" rows="2"></textarea>
         </div>
 
         <div class="modal-footer">
@@ -445,7 +447,7 @@
 
         <div class="form-group">
           <label for="resolutionNotes">Resolution Remarks & Actions Taken <span class="req">*</span></label>
-          <textarea id="resolutionNotes" class="form-input" rows="4" placeholder="Detail how the issue was resolved (e.g. Replaced faulty socket module, tested grounding, student confirmed fix)..." required></textarea>
+          <textarea id="resolutionNotes" class="form-input" rows="4" required></textarea>
         </div>
 
         <div class="modal-footer">

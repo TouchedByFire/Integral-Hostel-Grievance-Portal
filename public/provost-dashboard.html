@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntegraCare :: Chief Provost Executive Surveillance Console</title>
+  <title>IntegraCare :: Provost Executive Surveillance Console</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="/images/logo.png">
 </head>
 <body>
 
@@ -15,17 +16,16 @@
   <header class="app-header">
     <div class="header-container">
       <div class="brand-area">
-        <div class="brand-icon">🏛️</div>
+        <div class="brand-icon">
+          <img src="/images/logo.png" alt="Integral University Logo">
+        </div>
         <div>
           <h1 class="brand-title">IntegraCare</h1>
-          <p class="brand-sub">Integral University &bull; Chief Provost Directorate</p>
+          <p class="brand-sub">Integral University &bull; Provost Directorate</p>
         </div>
       </div>
 
       <div class="header-actions">
-        <div class="live-sync-indicator" title="Connected to Real-Time Server-Sent Events stream">
-          <span class="sync-dot"></span> MySQL Live Sync
-        </div>
         <button id="btnLogout" class="btn btn-secondary">
           🚪 Logout
         </button>
@@ -37,8 +37,7 @@
     <!-- Provost Header Banner -->
     <div class="provost-header-card">
       <div class="provost-header-info">
-        <span class="live-pulse-badge">🔴 REAL-TIME HOSTEL SURVEILLANCE &bull; MYSQL ENGINE</span>
-        <h2 class="provost-title">Chief Provost Executive Dashboard</h2>
+        <h2 class="provost-title">Provost Executive Dashboard</h2>
         <p class="provost-sub">Central real-time monitoring of all hostel complaints, supervisor responsiveness, and 24-hour SLA compliance across all residence halls.</p>
       </div>
       <div>
@@ -51,35 +50,35 @@
 
     <!-- Live Executive Metrics -->
     <div class="stats-row">
-      <div class="stat-card">
+      <div class="stat-card" data-kpi-filter="all" title="Click to view all grievances">
         <div class="stat-icon icon-blue">📊</div>
         <div>
           <div class="stat-val" id="provostTotal">0</div>
           <div class="stat-title">Total Grievances</div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-kpi-filter="pending" title="Click to filter pending assignment">
         <div class="stat-icon icon-amber">⏳</div>
         <div>
           <div class="stat-val" id="provostPending">0</div>
           <div class="stat-title">Pending Assignment</div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-kpi-filter="in_progress" title="Click to filter in progress grievances">
         <div class="stat-icon icon-purple">🛠️</div>
         <div>
           <div class="stat-val" id="provostInProgress">0</div>
           <div class="stat-title">In Progress</div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-kpi-filter="resolved" title="Click to filter resolved grievances">
         <div class="stat-icon icon-green">✓</div>
         <div>
           <div class="stat-val" id="provostResolved">0</div>
           <div class="stat-title">Resolved Within SLA</div>
         </div>
       </div>
-      <div class="stat-card stat-alert">
+      <div class="stat-card stat-alert" data-kpi-filter="breached" title="Click to filter SLA breached grievances">
         <div class="stat-icon icon-red">🚨</div>
         <div>
           <div class="stat-val text-red" id="provostBreached">0</div>
@@ -144,14 +143,32 @@
             <button type="button" class="btn btn-sm btn-outline" id="btnToggleCards">📱 Cards</button>
             <button type="button" class="btn btn-sm btn-outline active" id="btnToggleTable">📊 Table</button>
           </div>
-          <select id="provostCategoryFilter" class="filter-select" style="padding:0.5rem 1rem; border-radius:8px; border:1px solid var(--slate-300);">
-            <option value="all">All Categories</option>
-            <option value="Electrical">Electrical</option>
-            <option value="Plumbing">Plumbing</option>
-            <option value="Carpentry">Carpentry</option>
-            <option value="Food">Food</option>
-            <option value="Discipline">Discipline</option>
+          <select id="provostStatusFilter" class="filter-select" aria-label="Filter by Status" style="padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--slate-300); font-weight:600; font-size:0.83rem;">
+            <option value="all">All Statuses</option>
+            <option value="pending">⏳ Pending Assignment</option>
+            <option value="in_progress">🛠️ In Progress</option>
+            <option value="breached">🚨 SLA Breached (>24h)</option>
+            <option value="resolved">✓ Resolved</option>
           </select>
+          <select id="provostCategoryFilter" class="filter-select" aria-label="Filter by Maintenance Domain" style="padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--slate-300); font-weight:600; font-size:0.83rem;">
+            <option value="all">All Categories</option>
+            <option value="Electrical">⚡ Electrical</option>
+            <option value="Plumbing">🚰 Plumbing</option>
+            <option value="Carpentry">🪚 Carpentry</option>
+            <option value="Food">🍲 Food</option>
+            <option value="Discipline">⚖️ Discipline</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Status Quick-Filter Tabs Strip -->
+      <div class="filter-bar" style="margin-bottom: 1.25rem;">
+        <div class="filter-tabs" id="provostFilterTabs">
+          <button type="button" class="filter-tab active" data-filter="all">All Grievances <span class="tab-count-badge" id="countFilterAll">0</span></button>
+          <button type="button" class="filter-tab" data-filter="pending">⏳ Pending <span class="tab-count-badge" id="countFilterPending">0</span></button>
+          <button type="button" class="filter-tab" data-filter="in_progress">🛠️ In Progress <span class="tab-count-badge" id="countFilterInProgress">0</span></button>
+          <button type="button" class="filter-tab" data-filter="breached">🚨 SLA Breached <span class="tab-count-badge" id="countFilterBreached" style="background:#ffe4e6; color:#be123c;">0</span></button>
+          <button type="button" class="filter-tab" data-filter="resolved">✓ Resolved <span class="tab-count-badge" id="countFilterResolved" style="background:#dcfce7; color:#15803d;">0</span></button>
         </div>
       </div>
 
@@ -165,15 +182,15 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Ticket #</th>
-              <th>Category</th>
-              <th>Hostel & Room</th>
-              <th>Student Details</th>
-              <th>Supervisor In-Charge</th>
-              <th>Assigned Professional</th>
-              <th>24h SLA Status</th>
-              <th>Status</th>
-              <th>Inspector</th>
+              <th style="width: 85px;">Ticket #</th>
+              <th style="width: 95px;">Category</th>
+              <th style="min-width: 135px;">Location</th>
+              <th style="min-width: 130px;">Student</th>
+              <th style="min-width: 120px;">Supervisor</th>
+              <th style="min-width: 130px;">Assigned Field Staff</th>
+              <th style="width: 105px;">24h SLA</th>
+              <th style="width: 90px;">Status</th>
+              <th style="width: 85px; text-align: center;">Action</th>
             </tr>
           </thead>
           <tbody id="provostTableBody">
@@ -197,7 +214,7 @@
           <p class="view-subheading">Supervise domain supervisors, inspect department workloads, manage contact directories, or onboard new supervisors.</p>
         </div>
         <div class="toolbar-actions" style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
-          <input type="text" id="supervisorSearchInput" placeholder="🔍 Search supervisors..." class="form-input" style="width:220px; padding:0.48rem 0.85rem; font-size:0.84rem;">
+          <input type="text" id="supervisorSearchInput" aria-label="Search supervisors" class="form-input" style="width:220px; padding:0.48rem 0.85rem; font-size:0.84rem;">
           <select id="supervisorCategoryFilter" class="filter-select" style="padding:0.5rem 1rem; border-radius:8px; border:1px solid var(--slate-300);">
             <option value="all">All Domains</option>
             <option value="Electrical">⚡ Electrical</option>
@@ -269,16 +286,16 @@
         <div class="modal-body">
           <div class="form-group">
             <label for="addSupName">Full Name <span class="req">*</span></label>
-            <input type="text" id="addSupName" class="form-input" placeholder="e.g. Er. Amit Sharma" required>
+            <input type="text" id="addSupName" class="form-input" required>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label for="addSupEmail">Official Email <span class="req">*</span></label>
-              <input type="email" id="addSupEmail" class="form-input" placeholder="e.g. amit.hostel@iul.ac.in" required>
+              <input type="email" id="addSupEmail" class="form-input" required>
             </div>
             <div class="form-group">
               <label for="addSupPhone">Phone Number <span class="req">*</span></label>
-              <input type="tel" id="addSupPhone" class="form-input" placeholder="e.g. +91 94150 77889" required>
+              <input type="tel" id="addSupPhone" class="form-input" required>
             </div>
           </div>
           <div class="form-row">
@@ -295,12 +312,12 @@
             </div>
             <div class="form-group">
               <label for="addSupPassword">Initial Password <span class="req">*</span></label>
-              <input type="text" id="addSupPassword" class="form-input" value="super123" required>
+              <input type="text" id="addSupPassword" class="form-input" required>
             </div>
           </div>
           <div class="form-group">
             <label for="addSupTitle">Official Designation / Title</label>
-            <input type="text" id="addSupTitle" class="form-input" placeholder="e.g. Supervisor - Electrical Maintenance">
+            <input type="text" id="addSupTitle" class="form-input">
             <p class="form-hint" style="font-size:0.75rem; color:var(--slate-500); margin-top:0.25rem;">Leave empty to generate automatic official title based on selected domain.</p>
           </div>
         </div>
@@ -352,7 +369,7 @@
             </div>
             <div class="form-group">
               <label for="editSupPassword">Reset Password (Optional)</label>
-              <input type="password" id="editSupPassword" class="form-input" placeholder="Leave blank to keep current">
+              <input type="password" id="editSupPassword" class="form-input">
             </div>
           </div>
           <div class="form-group">
@@ -425,7 +442,7 @@
             <h4 class="detail-section-title">Grievance Description</h4>
             <div id="modalDescriptionBox" class="detail-description"></div>
 
-            <h4 class="detail-section-title" style="margin-top: 1.5rem;">Assigned Field Professional</h4>
+            <h4 class="detail-section-title" id="lblDetailAssignedProf" style="margin-top: 1.5rem;">Assigned Field Professional</h4>
             <div id="modalProfessionalBox" class="professional-card"></div>
 
             <div id="modalResolutionSection" style="display:none; margin-top: 1.5rem;">
@@ -458,6 +475,6 @@
     </div>
   </div>
 
-  <script src="js/provost.js"></script>
+  <script src="js/provost.js?v=20261015_06"></script>
 </body>
 </html>

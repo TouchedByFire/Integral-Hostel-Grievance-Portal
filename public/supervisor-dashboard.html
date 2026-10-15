@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="/images/logo.png">
 </head>
 <body>
 
@@ -15,7 +16,9 @@
   <header class="app-header">
     <div class="header-container">
       <div class="brand-area">
-        <div class="brand-icon" id="supBrandIcon">🛠️</div>
+        <div class="brand-icon">
+          <img src="/images/logo.png" alt="Integral University Logo">
+        </div>
         <div>
           <h1 class="brand-title">IntegraCare</h1>
           <p class="brand-sub" id="supNavSub">Supervisor Maintenance Workspace &bull; Integral University</p>
@@ -46,92 +49,133 @@
       </div>
     </div>
 
-    <!-- KPI Stats Row -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-icon icon-blue">📋</div>
+    <!-- Workspace Navigation Tabs -->
+    <div class="workspace-tab-nav">
+      <button type="button" class="workspace-tab-item active" id="tabNavComplaints">
+        <span>📋 Complaints Queue</span>
+        <span class="tab-badge" id="badgeComplaintsCount">0</span>
+      </button>
+      <button type="button" class="workspace-tab-item" id="tabNavTechnicians">
+        <span>👷 Technicians Directory</span>
+        <span class="tab-badge" id="badgeTechCount">0 Available</span>
+      </button>
+    </div>
+
+    <!-- SECTION 1: COMPLAINTS QUEUE -->
+    <div id="sectionComplaints">
+      <!-- KPI Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon icon-blue">📋</div>
+          <div>
+            <div class="stat-val" id="kpiTotal">0</div>
+            <div class="stat-title">Total Domain Tickets</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-amber">⏳</div>
+          <div>
+            <div class="stat-val" id="kpiUnassigned">0</div>
+            <div class="stat-title">Needs Professional Assigned</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-purple">🛠️</div>
+          <div>
+            <div class="stat-val" id="kpiInProgress">0</div>
+            <div class="stat-title" id="kpiTitleInProgress">Assigned Professional On-Site / Active</div>
+          </div>
+        </div>
+        <div class="stat-card stat-alert">
+          <div class="stat-icon icon-red">🚨</div>
+          <div>
+            <div class="stat-val text-red" id="kpiBreached">0</div>
+            <div class="stat-title">Overdue (24h SLA Breached)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Header -->
+      <div class="section-toolbar">
         <div>
-          <div class="stat-val" id="kpiTotal">0</div>
-          <div class="stat-title">Total Domain Tickets</div>
+          <h2 class="view-heading" id="supQueueTitle">Department Complaints Queue</h2>
+          <p class="view-subheading">Assign trusted field professionals and log resolution updates.</p>
+        </div>
+        <div class="toolbar-actions" style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+          <div class="view-toggle-group" id="supViewToggle">
+            <button type="button" class="btn btn-sm btn-outline" id="btnToggleCards">📱 Cards</button>
+            <button type="button" class="btn btn-sm btn-outline active" id="btnToggleTable">📊 Table</button>
+          </div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon icon-amber">⏳</div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All Category Tickets</button>
+          <button class="filter-tab" data-filter="unassigned">Needs Professional</button>
+          <button class="filter-tab" data-filter="in_progress">In Progress</button>
+          <button class="filter-tab" data-filter="breached">🚨 Overdue / Breached</button>
+          <button class="filter-tab" data-filter="resolved">Resolved</button>
+        </div>
+      </div>
+
+      <!-- Mobile Horizontal Scroll Hint -->
+      <div id="tableScrollHint" class="table-scroll-hint" style="display:none;">
+        <span>👉 Swipe horizontally across the table to inspect all columns</span>
+      </div>
+
+      <!-- Table Container -->
+      <div class="data-table-container" id="supervisorTableContainer">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:110px;">Ticket #</th>
+              <th style="width:155px;">Student & Location</th>
+              <th style="width:140px; max-width:140px;">Issue Summary</th>
+              <th style="width:75px;">Priority</th>
+              <th style="width:130px;">24h SLA Status</th>
+              <th style="width:160px;" id="thAssignedProfessional">Assigned Professional</th>
+              <th style="width:110px;">Status</th>
+              <th style="width:230px;">Supervisor Actions</th>
+            </tr>
+          </thead>
+          <tbody id="supervisorTableBody">
+            <!-- Injected via js/supervisor.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Supervisor Mobile Cards Container -->
+      <div class="provost-cards-grid" id="supervisorCardsContainer" style="display:none;">
+        <!-- Injected via js/supervisor.js -->
+      </div>
+    </div>
+
+    <!-- SECTION 2: TECHNICIANS DIRECTORY & MANAGEMENT -->
+    <div id="sectionTechnicians" style="display:none;">
+      <div class="section-toolbar">
         <div>
-          <div class="stat-val" id="kpiUnassigned">0</div>
-          <div class="stat-title">Needs Professional Assigned</div>
+          <h2 class="view-heading" id="techViewTitle">Available Technicians Directory</h2>
+          <p class="view-subheading" id="techViewSub">Maintain dedicated maintenance personnel, update live status, and auto-populate assignments.</p>
+        </div>
+        <div class="toolbar-actions" style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+          <select id="techStatusFilter" class="filter-select" style="padding:0.5rem 0.85rem; border-radius:8px; border:1px solid var(--slate-300); font-size:0.84rem;">
+            <option value="all">All Availability Statuses</option>
+            <option value="Available">🟢 Available Only</option>
+            <option value="Busy">🟠 Busy / On-Job</option>
+            <option value="On Leave">⚪ On Leave</option>
+          </select>
+          <button type="button" class="btn btn-primary" id="btnOpenAddTechModal">
+            ➕ Add New Technician
+          </button>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon icon-purple">🛠️</div>
-        <div>
-          <div class="stat-val" id="kpiInProgress">0</div>
-          <div class="stat-title">Technician On-Site / In Progress</div>
-        </div>
-      </div>
-      <div class="stat-card stat-alert">
-        <div class="stat-icon icon-red">🚨</div>
-        <div>
-          <div class="stat-val text-red" id="kpiBreached">0</div>
-          <div class="stat-title">Overdue (24h SLA Breached)</div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Section Header -->
-    <div class="section-toolbar">
-      <div>
-        <h2 class="view-heading" id="supQueueTitle">Department Complaints Queue</h2>
-        <p class="view-subheading">Assign trusted field professionals and log resolution updates.</p>
+      <!-- Technicians Grid Container -->
+      <div class="tech-grid" id="techniciansGrid">
+        <!-- Injected via js/supervisor.js -->
       </div>
-      <div class="toolbar-actions" style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
-        <div class="view-toggle-group" id="supViewToggle">
-          <button type="button" class="btn btn-sm btn-outline" id="btnToggleCards">📱 Cards</button>
-          <button type="button" class="btn btn-sm btn-outline active" id="btnToggleTable">📊 Table</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-      <div class="filter-tabs">
-        <button class="filter-tab active" data-filter="all">All Category Tickets</button>
-        <button class="filter-tab" data-filter="unassigned">Needs Professional</button>
-        <button class="filter-tab" data-filter="in_progress">In Progress</button>
-        <button class="filter-tab" data-filter="breached">🚨 Overdue / Breached</button>
-        <button class="filter-tab" data-filter="resolved">Resolved</button>
-      </div>
-    </div>
-
-    <!-- Mobile Horizontal Scroll Hint -->
-    <div id="tableScrollHint" class="table-scroll-hint" style="display:none;">
-      <span>👉 Swipe horizontally across the table to inspect all columns</span>
-    </div>
-
-    <!-- Table Container -->
-    <div class="data-table-container" id="supervisorTableContainer">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Ticket #</th>
-            <th>Student & Hall / Room</th>
-            <th>Issue Summary</th>
-            <th>Priority</th>
-            <th>24h SLA Status</th>
-            <th>Assigned Professional</th>
-            <th>Status</th>
-            <th>Supervisor Actions</th>
-          </tr>
-        </thead>
-        <tbody id="supervisorTableBody">
-          <!-- Injected via js/supervisor.js -->
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Supervisor Mobile Cards Container -->
-    <div class="provost-cards-grid" id="supervisorCardsContainer" style="display:none;">
-      <!-- Injected via js/supervisor.js -->
     </div>
   </main>
 
@@ -140,7 +184,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <div>
-          <h3 class="modal-title">Assign Field Professional</h3>
+          <h3 class="modal-title" id="assignModalTitle">Assign Field Professional</h3>
           <p class="modal-sub" id="assignModalSubtitle">Designate an offline technician to address this ticket.</p>
         </div>
         <button class="modal-close" id="btnCloseAssignModal">&times;</button>
@@ -150,32 +194,134 @@
 
         <div class="info-banner" id="assignTicketSummaryBanner"></div>
 
+        <!-- 1-Click Technician Selector from Maintained Directory -->
+        <div class="form-group" style="background:#eff6ff; border:1px solid #bfdbfe; padding:0.85rem 1rem; border-radius:var(--radius-md); margin-bottom:1.15rem;">
+          <label for="technicianSelect" style="color:#1e40af; font-weight:700; display:flex; justify-content:space-between; align-items:center;">
+            <span id="techSelectLabel">⚡ Select from Available Technicians</span>
+            <span id="techSelectBadge" style="font-size:0.75rem; font-weight:700; color:#2563eb;">0 Available</span>
+          </label>
+          <select id="technicianSelect" class="form-input" style="background:#ffffff; border-color:#93c5fd; margin-top:0.35rem; font-weight:600;">
+            <option value="">-- Choose Available Technician --</option>
+            <!-- Injected via js/supervisor.js -->
+            <option value="__custom__">+ Enter Custom / Other Technician</option>
+          </select>
+          <small style="color:#2563eb; font-size:0.76rem; display:block; margin-top:0.35rem;">
+            Selecting a technician automatically fills their details below.
+          </small>
+        </div>
+
         <div class="form-row">
           <div class="form-group">
-            <label for="profName">Technician / Professional Full Name <span class="req">*</span></label>
-            <input type="text" id="profName" class="form-input" placeholder="e.g. Ramesh Kumar (Electrician)" required>
+            <label for="profName" id="lblProfName">Technician / Professional Full Name <span class="req">*</span></label>
+            <input type="text" id="profName" class="form-input" required>
           </div>
           <div class="form-group">
             <label for="profPhone">Professional Mobile Number <span class="req">*</span></label>
-            <input type="text" id="profPhone" class="form-input" placeholder="e.g. +91 98234 56789" required>
+            <input type="text" id="profPhone" class="form-input" required>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="profVisitTime">Expected Visit Date & Time <span class="req">*</span></label>
-          <input type="text" id="profVisitTime" class="form-input" placeholder="e.g. Today between 2:00 PM - 3:30 PM" required>
+          <label for="profVisitTime">Expected Visit Date & Time (Calendar & Clock) <span class="req">*</span></label>
+          <input type="datetime-local" id="profVisitTime" class="form-input" required style="cursor:pointer; font-weight:600; padding:0.65rem 0.85rem;">
+          <div style="display:flex; gap:0.4rem; margin-top:0.45rem; flex-wrap:wrap;">
+            <button type="button" class="btn-time-preset" data-preset="1h" style="padding:0.25rem 0.65rem; font-size:0.75rem; border:1px solid #cbd5e1; background:#f8fafc; border-radius:6px; cursor:pointer; font-weight:600; color:#1e40af; transition:all 0.15s ease;">⚡ +1 Hour</button>
+            <button type="button" class="btn-time-preset" data-preset="2h" style="padding:0.25rem 0.65rem; font-size:0.75rem; border:1px solid #cbd5e1; background:#f8fafc; border-radius:6px; cursor:pointer; font-weight:600; color:#1e40af; transition:all 0.15s ease;">⚡ +2 Hours</button>
+            <button type="button" class="btn-time-preset" data-preset="today_pm" style="padding:0.25rem 0.65rem; font-size:0.75rem; border:1px solid #cbd5e1; background:#f8fafc; border-radius:6px; cursor:pointer; font-weight:600; color:#334155; transition:all 0.15s ease;">🕒 Today 3:00 PM</button>
+            <button type="button" class="btn-time-preset" data-preset="tomorrow_am" style="padding:0.25rem 0.65rem; font-size:0.75rem; border:1px solid #cbd5e1; background:#f8fafc; border-radius:6px; cursor:pointer; font-weight:600; color:#334155; transition:all 0.15s ease;">📅 Tomorrow 10:00 AM</button>
+          </div>
+          <div id="profVisitFormattedPreview" style="font-size:0.78rem; font-weight:600; color:#1e40af; margin-top:0.45rem; display:flex; align-items:center; gap:0.35rem; background:#eff6ff; padding:0.35rem 0.65rem; border-radius:6px; border:1px solid #bfdbfe;">
+            <span>🕒 Arrival:</span>
+            <span id="profVisitFormattedText">Today</span>
+          </div>
         </div>
 
         <div class="form-group">
           <label for="profNotes">Special Work Order Notes / Instructions</label>
-          <textarea id="profNotes" class="form-input" rows="2" placeholder="e.g. Bring 16A switch board and replacement wire..."></textarea>
+          <textarea id="profNotes" class="form-input" rows="2"></textarea>
+        </div>
+
+        <div style="margin-bottom:1.15rem; display:flex; align-items:center; gap:0.5rem;">
+          <input type="checkbox" id="chkSaveTechnician" style="width:16px; height:16px; cursor:pointer;">
+          <label for="chkSaveTechnician" id="chkSaveTechnicianLabel" style="font-size:0.82rem; color:var(--slate-600); cursor:pointer;">
+            Save to directory for future 1-click dispatch
+          </label>
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btnCancelAssign">Cancel</button>
-          <button type="submit" class="btn btn-primary">Confirm & Dispatch Professional</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitAssign">Confirm & Dispatch Professional</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Technician Modal -->
+  <div id="technicianModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="techModalTitle">Add New Personnel</h3>
+          <p class="modal-sub" id="techModalSub">Maintain details for instant ticket dispatch.</p>
+        </div>
+        <button class="modal-close" id="btnCloseTechModal">&times;</button>
+      </div>
+      <form id="technicianForm" class="modal-body">
+        <input type="hidden" id="editTechId">
+
+        <div class="form-group">
+          <label for="techFormName" id="lblTechFormName">Personnel Full Name <span class="req">*</span></label>
+          <input type="text" id="techFormName" class="form-input" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="techFormPhone">Mobile Number <span class="req">*</span></label>
+            <input type="tel" id="techFormPhone" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label for="techFormStatus">Availability Status <span class="req">*</span></label>
+            <select id="techFormStatus" class="form-input" required>
+              <option value="Available">🟢 Available (Ready for Dispatch)</option>
+              <option value="Busy">🟠 Busy / Assigned On-Site</option>
+              <option value="On Leave">⚪ On Leave / Off Duty</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding-left:0; padding-right:0; margin-bottom:-0.5rem;">
+          <button type="button" class="btn btn-secondary" id="btnCancelTechModal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveTechnician">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Technician Confirmation Modal -->
+  <div id="deleteTechnicianModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="deleteModalTitle" style="color: #b91c1c;">Remove Personnel</h3>
+          <p class="modal-sub" id="deleteModalSub">Confirm removal from your domain directory.</p>
+        </div>
+        <button class="modal-close" id="btnCloseDeleteTechModal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding-top: 0.5rem;">
+        <input type="hidden" id="deleteTechId">
+        <p style="font-size: 0.95rem; color: var(--slate-700); line-height: 1.5; margin: 0 0 1rem;">
+          Are you sure you want to remove <strong id="deleteTechNameDisplay" style="color: var(--slate-900);"></strong> from your directory?
+        </p>
+        <p style="font-size: 0.8rem; color: var(--slate-500); margin: 0;" id="deleteModalWarning">
+          This record will no longer appear in your quick dispatch list. Existing assigned tickets will remain unaffected.
+        </p>
+        <div class="modal-footer" style="padding-left:0; padding-right:0; margin-top:1.5rem; margin-bottom:-0.5rem;">
+          <button type="button" class="btn btn-secondary" id="btnCancelDeleteTech">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmDeleteTech" style="background:#dc2626; border-color:#dc2626;">
+            🗑️ Yes, Remove
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -195,8 +341,16 @@
         <div class="info-banner" id="resolveTicketSummaryBanner"></div>
 
         <div class="form-group">
-          <label for="resolutionNotes">Resolution Remarks & Actions Taken <span class="req">*</span></label>
-          <textarea id="resolutionNotes" class="form-input" rows="4" placeholder="Detail how the issue was resolved..." required></textarea>
+          <label for="resolveReasonSelect">Standard Resolution Action <span class="req">*</span></label>
+          <select id="resolveReasonSelect" class="form-input" required style="font-weight:600;">
+            <option value="">-- Select Standard Resolution Action --</option>
+            <option value="__other__">📝 Other (Enter Custom Remarks Manually)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="resolutionNotes" id="labelResolutionNotes">Resolution Remarks & Notes <span class="req">*</span></label>
+          <textarea id="resolutionNotes" class="form-input" rows="3" required></textarea>
         </div>
 
         <div class="modal-footer">
@@ -224,7 +378,7 @@
             <h4 class="detail-section-title">Grievance Description</h4>
             <div id="modalDescriptionBox" class="detail-description"></div>
 
-            <h4 class="detail-section-title" style="margin-top: 1.5rem;">Assigned Field Professional</h4>
+            <h4 class="detail-section-title" id="lblDetailAssignedProf" style="margin-top: 1.5rem;">Assigned Field Professional</h4>
             <div id="modalProfessionalBox" class="professional-card"></div>
 
             <div id="modalResolutionSection" style="display:none; margin-top: 1.5rem;">
@@ -257,6 +411,6 @@
     </div>
   </div>
 
-  <script src="js/supervisor.js"></script>
+  <script src="js/supervisor.js?v=20261015_05"></script>
 </body>
 </html>

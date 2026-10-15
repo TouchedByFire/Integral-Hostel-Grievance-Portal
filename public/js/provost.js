@@ -1,10 +1,11 @@
 /**
- * HostelCare :: Chief Provost Directorate JavaScript
+ * HostelCare :: Provost Directorate JavaScript
  */
 
 let currentUser = null;
 let complaints = [];
 let categoryFilter = 'all';
+let statusFilter = 'all';
 let ledgerView = window.innerWidth <= 768 ? 'cards' : 'table';
 
 let supervisors = [];
@@ -94,7 +95,7 @@ async function fetchProvostStats() {
       <div class="feed-item">
         <div>
           <div class="feed-time">${formatTimeAgo(act.time)} &bull; #${act.ticketNumber} [${act.category}]</div>
-          <div class="feed-text"><strong>${escapeHtml(act.actor)}:</strong> ${escapeHtml(act.action)}</div>
+          <div class="feed-text"><strong>${escapeHtml(act.actor)}:</strong> ${escapeHtml(formatTimelineActionForUI(act.action, act.category))}</div>
         </div>
       </div>
     `).join('');
@@ -109,6 +110,7 @@ async function fetchComplaints() {
     complaints = await res.json();
     const badge = document.getElementById('badgeLedgerCount');
     if (badge) badge.textContent = complaints.length;
+    updateFilterCounts();
     renderTable();
   } catch (err) {
     console.error('Error fetching complaints:', err);
@@ -126,6 +128,35 @@ function setupEventListeners() {
   document.getElementById('provostCategoryFilter').addEventListener('change', (e) => {
     categoryFilter = e.target.value;
     fetchComplaints();
+  });
+
+  // Status filter dropdown
+  const statusSelect = document.getElementById('provostStatusFilter');
+  if (statusSelect) {
+    statusSelect.addEventListener('change', (e) => {
+      setStatusFilter(e.target.value);
+    });
+  }
+
+  // Status filter quick tabs
+  document.querySelectorAll('#provostFilterTabs .filter-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-tab');
+      if (!btn) return;
+      setStatusFilter(btn.dataset.filter);
+    });
+  });
+
+  // Clickable KPI Stat Cards as filter shortcuts
+  document.querySelectorAll('.stat-card[data-kpi-filter]').forEach(card => {
+    card.addEventListener('click', () => {
+      const filter = card.dataset.kpiFilter;
+      setStatusFilter(filter);
+      const tableSec = document.getElementById('provostTableContainer');
+      if (tableSec) {
+        tableSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
   });
 
   // Ledger View Toggle (Mobile Cards vs Table)
@@ -157,6 +188,49 @@ function setupEventListeners() {
   document.getElementById('btnCloseDetailModalBtn').addEventListener('click', () => {
     document.getElementById('ticketDetailModal').classList.remove('active');
   });
+}
+
+function setStatusFilter(filter) {
+  statusFilter = filter;
+
+  // Sync tab active states
+  document.querySelectorAll('#provostFilterTabs .filter-tab').forEach(t => {
+    if (t.dataset.filter === filter) {
+      t.classList.add('active');
+    } else {
+      t.classList.remove('active');
+    }
+  });
+
+  // Sync status dropdown
+  const statusSelect = document.getElementById('provostStatusFilter');
+  if (statusSelect && statusSelect.value !== filter) {
+    statusSelect.value = filter;
+  }
+
+  renderTable();
+}
+
+function updateFilterCounts() {
+  const counts = {
+    all: complaints.length,
+    pending: complaints.filter(c => c.status === 'Pending Assignment' || (!c.assignedProfessional && c.status !== 'Resolved')).length,
+    in_progress: complaints.filter(c => c.status === 'In Progress').length,
+    breached: complaints.filter(c => c.slaBreached && c.status !== 'Resolved').length,
+    resolved: complaints.filter(c => c.status === 'Resolved').length
+  };
+
+  const elAll = document.getElementById('countFilterAll');
+  const elPending = document.getElementById('countFilterPending');
+  const elInProgress = document.getElementById('countFilterInProgress');
+  const elBreached = document.getElementById('countFilterBreached');
+  const elResolved = document.getElementById('countFilterResolved');
+
+  if (elAll) elAll.textContent = counts.all;
+  if (elPending) elPending.textContent = counts.pending;
+  if (elInProgress) elInProgress.textContent = counts.in_progress;
+  if (elBreached) elBreached.textContent = counts.breached;
+  if (elResolved) elResolved.textContent = counts.resolved;
 }
 
 function updateLedgerView() {
@@ -204,18 +278,37 @@ function renderTable() {
   const tbody = document.getElementById('provostTableBody');
   const cardsContainer = document.getElementById('provostCardsContainer');
 
-  if (complaints.length === 0) {
+  // Filter complaints according to statusFilter
+  const list = complaints.filter(t => {
+    if (statusFilter === 'pending') {
+      return t.status === 'Pending Assignment' || (!t.assignedProfessional && t.status !== 'Resolved');
+    }
+    if (statusFilter === 'in_progress') {
+      return t.status === 'In Progress';
+    }
+    if (statusFilter === 'breached') {
+      return t.slaBreached && t.status !== 'Resolved';
+    }
+    if (statusFilter === 'resolved') {
+      return t.status === 'Resolved';
+    }
+    return true; // 'all'
+  });
+
+  updateFilterCounts();
+
+  if (list.length === 0) {
     tbody.innerHTML = `
       <tr>
         <td colspan="9" style="text-align:center; padding: 2.5rem; color: var(--slate-500);">
-          No complaints found in this category.
+          No grievances found matching this status filter.
         </td>
       </tr>
     `;
     if (cardsContainer) {
       cardsContainer.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem; color: var(--slate-500); background: #ffffff; border-radius: var(--radius-lg); border: 1px dashed var(--slate-300);">
-          No complaints found in this category.
+          No grievances found matching this status filter.
         </div>
       `;
     }
@@ -223,8 +316,8 @@ function renderTable() {
     return;
   }
 
-  // 1. Render Table Rows (Desktop / Wide view)
-  tbody.innerHTML = complaints.map(t => {
+  // 1. Render Table Rows (Compact & Fit without horizontal scroll)
+  tbody.innerHTML = list.map(t => {
     const cat = CATEGORIES[t.category] || { icon: '📋', class: 'cat-electrical' };
     const sla = calculateSla(t);
     const isBreached = t.slaBreached && t.status !== 'Resolved';
@@ -241,29 +334,30 @@ function renderTable() {
 
     return `
       <tr class="${rowClass}">
-        <td><strong>#${t.ticketNumber}</strong></td>
-        <td><span class="badge-category ${cat.class}">${cat.icon} ${t.category}</span></td>
-        <td>
-          <div style="font-weight:600;">${escapeHtml(t.hostel)}</div>
+        <td class="nowrap"><strong>#${t.ticketNumber}</strong></td>
+        <td class="nowrap"><span class="badge-category ${cat.class}">${cat.icon} ${t.category}</span></td>
+        <td style="line-height:1.25;">
+          <div style="font-size:0.7rem; font-weight:700; color:var(--primary-700); text-transform:uppercase; letter-spacing:0.03em;">${escapeHtml(t.campus || 'Phase I')}</div>
+          <div style="font-weight:600; font-size:0.83rem;">${escapeHtml(t.hostel)}</div>
           <div style="font-size:0.75rem; color:var(--slate-500);">Room: ${escapeHtml(t.room)}</div>
         </td>
-        <td>
-          <div style="font-weight:600;">${escapeHtml(t.studentName)}</div>
-          <div style="font-size:0.75rem; color:var(--slate-500);">${escapeHtml(t.studentEmail)}</div>
+        <td style="line-height:1.25;">
+          <div style="font-weight:600; font-size:0.83rem;">${escapeHtml(t.studentName)}</div>
+          <div style="font-size:0.73rem; color:var(--slate-500); word-break:break-all;">${escapeHtml(t.studentEmail)}</div>
         </td>
-        <td>
-          <div style="font-weight:600;">${escapeHtml(t.assignedSupervisorName)}</div>
+        <td style="line-height:1.25;">
+          <div style="font-weight:600; font-size:0.83rem;">${escapeHtml(t.assignedSupervisorName)}</div>
           <div style="font-size:0.72rem; color:var(--slate-500);">${t.category} Supervisor</div>
         </td>
-        <td>${profText}</td>
+        <td style="line-height:1.25;">${profText}</td>
         <td>
-          <div class="sla-badge-text ${sla.textClass}" style="font-size:0.78rem;">${sla.badgeText}</div>
-          <div class="sla-bar" style="width: 100px; margin-top:3px;">
+          <div class="sla-badge-text ${sla.textClass}" style="font-size:0.74rem; font-weight:700; line-height:1.2;">${sla.badgeText}</div>
+          <div class="sla-bar" style="width: 75px; margin-top:3px;">
             <div class="sla-bar-fill ${sla.fillClass}" style="width: ${sla.progressPercent}%"></div>
           </div>
         </td>
-        <td><span class="badge-status ${statusClass}">${t.status}</span></td>
-        <td>
+        <td class="nowrap"><span class="badge-status ${statusClass}">${t.status}</span></td>
+        <td style="text-align:center;">
           <button class="btn btn-secondary btn-sm btn-inspect" data-id="${t.id}">
             🔍 Inspect
           </button>
@@ -274,7 +368,7 @@ function renderTable() {
 
   // 2. Render Mobile / Responsive Cards
   if (cardsContainer) {
-    cardsContainer.innerHTML = complaints.map(t => {
+    cardsContainer.innerHTML = list.map(t => {
       const cat = CATEGORIES[t.category] || { icon: '📋', class: 'cat-electrical' };
       const sla = calculateSla(t);
       const isBreached = t.slaBreached && t.status !== 'Resolved';
@@ -302,7 +396,7 @@ function renderTable() {
           <div class="provost-card-body">
             <div class="provost-card-row">
               <span>🏛️</span>
-              <div><strong>${escapeHtml(t.hostel)}</strong> &bull; Room: <strong>${escapeHtml(t.room)}</strong></div>
+              <div><strong>${escapeHtml(t.campus || 'Phase I')} &bull; ${escapeHtml(t.hostel)}</strong> &bull; Room: <strong>${escapeHtml(t.room)}</strong></div>
             </div>
             <div class="provost-card-row">
               <span>🎓</span>
@@ -313,8 +407,8 @@ function renderTable() {
               <div>Supervisor: <strong>${escapeHtml(t.assignedSupervisorName)}</strong> (${t.category})</div>
             </div>
             <div class="provost-card-row">
-              <span>🛠️</span>
-              <div>Technician: ${profText}</div>
+              <span>${cat.icon}</span>
+              <div>${t.category === 'Food' ? 'Catering Staff' : (t.category === 'Discipline' ? 'Warden / Proctor' : (t.category === 'Plumbing' ? 'Plumber' : (t.category === 'Carpentry' ? 'Carpenter' : 'Technician')))}: ${profText}</div>
             </div>
 
             <div class="provost-card-sla">
@@ -381,16 +475,32 @@ async function openDetailModal(ticketId) {
     document.getElementById('modalCategoryBadge').innerHTML = `${cat.icon} ${ticket.category}`;
     document.getElementById('modalTicketTitle').textContent = ticket.title;
     document.getElementById('modalTicketMeta').innerHTML = `
-      <strong>#${ticket.ticketNumber}</strong> &bull; Student: <strong>${escapeHtml(ticket.studentName)}</strong> (${escapeHtml(ticket.hostel)} - Room ${escapeHtml(ticket.room)})
+      <strong>#${ticket.ticketNumber}</strong> &bull; Student: <strong>${escapeHtml(ticket.studentName)}</strong> (${escapeHtml(ticket.campus || 'Phase I')} &bull; ${escapeHtml(ticket.hostel)} - Room ${escapeHtml(ticket.room)})
     `;
 
     document.getElementById('modalDescriptionBox').textContent = ticket.description;
 
     const profBox = document.getElementById('modalProfessionalBox');
+    const profTitleEl = document.getElementById('lblDetailAssignedProf');
+    if (profTitleEl) {
+      if (ticket.category === 'Food') profTitleEl.textContent = 'Assigned Catering Staff / Food Inspector';
+      else if (ticket.category === 'Discipline') profTitleEl.textContent = 'Assigned Hostel Warden / Floor Proctor';
+      else if (ticket.category === 'Plumbing') profTitleEl.textContent = 'Assigned Plumber';
+      else if (ticket.category === 'Carpentry') profTitleEl.textContent = 'Assigned Carpenter';
+      else profTitleEl.textContent = 'Assigned Electrical Technician';
+    }
+
+    let roleLabel = 'Field Professional';
+    if (ticket.category === 'Food') roleLabel = 'Catering Staff / Food Inspector';
+    else if (ticket.category === 'Discipline') roleLabel = 'Hostel Warden / Proctor';
+    else if (ticket.category === 'Plumbing') roleLabel = 'Plumber';
+    else if (ticket.category === 'Carpentry') roleLabel = 'Carpenter';
+    else if (ticket.category === 'Electrical') roleLabel = 'Electrical Technician';
+
     if (ticket.assignedProfessional) {
       profBox.innerHTML = `
         <div style="font-weight:700; color:var(--primary-800); font-size:1rem;">
-          🛠️ ${escapeHtml(ticket.assignedProfessional.name)}
+          ${cat.icon} ${escapeHtml(ticket.assignedProfessional.name)} <span style="font-size:0.8rem; font-weight:600; color:var(--slate-500);">(${roleLabel})</span>
         </div>
         <div style="margin-top:0.35rem; font-size:0.88rem; color:var(--slate-700);">
           📞 Contact: <strong>${escapeHtml(ticket.assignedProfessional.phone)}</strong><br>
@@ -399,7 +509,13 @@ async function openDetailModal(ticketId) {
         </div>
       `;
     } else {
-      profBox.innerHTML = `<div style="color:var(--slate-500); font-style:italic;">No field technician assigned yet.</div>`;
+      let notAssignedMsg = 'No field professional assigned yet.';
+      if (ticket.category === 'Food') notAssignedMsg = 'No catering staff or food inspector assigned yet.';
+      else if (ticket.category === 'Discipline') notAssignedMsg = 'No hostel warden or floor proctor assigned yet.';
+      else if (ticket.category === 'Plumbing') notAssignedMsg = 'No plumber assigned yet.';
+      else if (ticket.category === 'Carpentry') notAssignedMsg = 'No carpenter assigned yet.';
+      else if (ticket.category === 'Electrical') notAssignedMsg = 'No electrical technician assigned yet.';
+      profBox.innerHTML = `<div style="color:var(--slate-500); font-style:italic;">${notAssignedMsg}</div>`;
     }
 
     const resSec = document.getElementById('modalResolutionSection');
@@ -421,13 +537,16 @@ async function openDetailModal(ticketId) {
     document.getElementById('modalSlaDeadlineText').textContent = `24h Target: ${new Date(ticket.deadline).toLocaleString()}`;
 
     const timelineList = document.getElementById('modalTimelineList');
-    timelineList.innerHTML = (ticket.timeline || []).map(tl => `
-      <div class="timeline-item">
-        <div class="timeline-time">${new Date(tl.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; ${new Date(tl.time).toLocaleDateString()}</div>
-        <div class="timeline-actor">${escapeHtml(tl.actor)}</div>
-        <div class="timeline-action">${escapeHtml(tl.action)}</div>
-      </div>
-    `).join('');
+    timelineList.innerHTML = (ticket.timeline || []).map(tl => {
+      const actionText = formatTimelineActionForUI(tl.action, ticket.category);
+      return `
+        <div class="timeline-item">
+          <div class="timeline-time">${new Date(tl.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; ${new Date(tl.time).toLocaleDateString()}</div>
+          <div class="timeline-actor">${escapeHtml(tl.actor)}</div>
+          <div class="timeline-action">${escapeHtml(actionText)}</div>
+        </div>
+      `;
+    }).join('');
 
     document.getElementById('modalFooterActions').innerHTML = `
       <button type="button" class="btn btn-primary" onclick="alert('Priority executive notification dispatched to Supervisor ${ticket.assignedSupervisorName}!')">🔔 Ping Supervisor</button>
@@ -688,7 +807,7 @@ function openDeleteSupervisorModal(id) {
     let optionsHtml = others.map(o => `
       <option value="${o.id}">${escapeHtml(o.name)} (${o.category} Supervisor)</option>
     `).join('');
-    optionsHtml += `<option value="usr_provost">Prof. (Dr.) Mohammad Faisal (Chief Provost Office)</option>`;
+    optionsHtml += `<option value="usr_provost">Prof. (Dr.) Mohammad Faisal (Provost Office)</option>`;
     reassignSelect.innerHTML = optionsHtml;
   } else {
     reassignBlock.style.display = 'none';
@@ -734,7 +853,6 @@ function setupSupervisorEventListeners() {
   if (btnOpenAdd) {
     btnOpenAdd.addEventListener('click', () => {
       addForm.reset();
-      document.getElementById('addSupPassword').value = 'super123';
       addModal.classList.add('active');
     });
   }
@@ -874,5 +992,38 @@ function setupSupervisorEventListeners() {
       }
     });
   }
+}
+
+function formatTimelineActionForUI(actionText, category) {
+  if (!actionText) return '';
+  let text = actionText;
+  const cat = (category || '').toLowerCase();
+
+  if (cat.includes('food')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned catering staff / food inspector:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Catering staff / food inspector assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'catering staff member');
+    text = text.replace(/\btechnicians?\b/gi, 'catering staff');
+  } else if (cat.includes('discipline')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned hostel warden / proctor:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Hostel warden / proctor assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'hostel warden / proctor');
+    text = text.replace(/\btechnicians?\b/gi, 'warden/proctor');
+  } else if (cat.includes('plumb')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned plumber:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Plumber assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'plumber');
+    text = text.replace(/\btechnicians?\b/gi, 'plumber');
+  } else if (cat.includes('carpent')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned carpenter:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Carpenter assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'carpenter');
+    text = text.replace(/\btechnicians?\b/gi, 'carpenter');
+  } else if (cat.includes('elect')) {
+    text = text.replace(/Assigned\s+technician:?/gi, 'Assigned electrical technician:');
+  } else {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned field professional:');
+  }
+  return text;
 }
 

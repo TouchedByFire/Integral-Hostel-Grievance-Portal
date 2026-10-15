@@ -292,12 +292,14 @@ The server will initialize the database `hostel_grievance_db`, create tables if 
 | **Farhan Ali** | `IU/2023/20188` | `student123` | `Hall 2 (Boys)` | `C-204` |
 | **Ayesha Khan** | `IU/2023/30514` | `student123` | `Hall 1 (Girls)` | `H-118` |
 
-### Supervisors & Provost (Login with Email ID)
-| Role / Domain | Staff Email ID | Password | Name |
-| :--- | :--- | :--- | :--- |
-| **Electrical Maintenance** | `electrical.hostel@iul.ac.in` | `super123` | Rajesh Verma |
-| **Plumbing & Water** | `plumbing.hostel@iul.ac.in` | `super123` | Suresh Patel |
-| **Carpentry & Furniture** | `carpentry.hostel@iul.ac.in` | `super123` | Mohan Lal |
-| **Food & Mess Quality** | `food.hostel@iul.ac.in` | `super123` | Anil Deshmukh |
-| **Discipline Proctor** | `discipline.hostel@iul.ac.in` | `super123` | Col. R. Singh |
-| **Chief Provost** | `provost@iul.ac.in` | `provost123` | Prof. (Dr.) Mohammad Faisal |
+### Domain Supervisors & Provost (Login with Email ID or Handle)
+| Domain / Department | Supervisor Name | Official Email / Alias | Helpline / Contact | Password | Personnel Directory Type |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Electrical & Power Maintenance** | **Mohd Aamir Khan** | `maamirk@iul.ac.in` / `amir` | `+91 94558 96120` | `password123` | 👷 Technicians Directory (Electricians) |
+| **Plumbing & Water Sanitation** | **Zahid Raza** | `zahidraza@iul.ac.in` / `zahid` | `+91 82998 99297` | `password123` | 🔧 Technicians Directory (Plumbers) |
+| **Carpentry & Civil Infrastructure** | **Dr. Irfan Ahmad Siddiqui** | `iasiddiqui@iul.ac.in` / `irfan` | `+91 98383 26547` | `password123` | 🪚 Technicians Directory (Carpenters) |
+| **Hostel Mess & Food Quality** | **Dr. Salman** | `salman@iul.ac.in` / `drsalman` | `+91 98399 01234` | `password123` | 🍽️ Catering & Mess Staff Directory |
+| **Hostel Discipline & Student Welfare** | **Dr. Saba** | `saba@iul.ac.in` / `drsaba` | `+91 98401 23456` | `password123` | 🛡️ Wardens & Proctors Directory |
+| **Chief Provost Directorate** | **Prof. (Dr.) Mohammad Faisal** | `provost@iul.ac.in` | `+91 94150 99887` | `provost123` | Executive Governance & All Domains |
+
+> **Note on Hostel Coverage:** All domain supervisors have University-wide domain coverage, servicing all boys and girls residence halls (Hall 1–5, Phase I–III, Blocks A–D, etc.) across Integral University. All legacy specific hall coverage references have been removed in favor of department name and contact helpline.

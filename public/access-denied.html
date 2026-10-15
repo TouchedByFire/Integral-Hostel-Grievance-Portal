@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/jpeg" href="/images/logo.jpg">
   <style>
     .denied-wrapper {
       min-height: 100vh;
@@ -28,8 +29,9 @@
       box-shadow: var(--shadow-lg);
     }
     .denied-icon {
-      font-size: 3.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: center;
     }
     .denied-title {
       font-family: var(--font-heading);
@@ -53,7 +55,9 @@
 
   <div class="denied-wrapper">
     <div class="denied-card">
-      <div class="denied-icon">🛡️</div>
+      <div class="denied-icon">
+        <img src="/images/logo.png" alt="Integral University Logo" style="width:72px; height:72px; border-radius:50%; object-fit:contain; background:#ffffff; padding:2px; box-shadow:0 4px 14px rgba(0,0,0,0.12); border:2px solid var(--slate-200);">
+      </div>
       <h1 class="denied-title">403: Access Denied</h1>
       <p class="denied-desc">
         You do not have the required role privileges to access this dashboard.

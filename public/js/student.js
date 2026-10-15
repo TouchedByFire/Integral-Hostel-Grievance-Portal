@@ -39,7 +39,7 @@ async function checkAuth() {
 
     document.getElementById('studentDisplayName').textContent = currentUser.name;
     document.getElementById('studentDisplayMeta').innerHTML = `
-      ${currentUser.hostel} &bull; Room <strong>${currentUser.room}</strong> &bull; Enrollment: <strong>${currentUser.enrollment_no || currentUser.student_id}</strong>
+      <strong>${escapeHtml(currentUser.campus || 'Phase I')}</strong> &bull; ${escapeHtml(currentUser.hostel)} &bull; Room <strong>${escapeHtml(currentUser.room)}</strong> &bull; Enrollment: <strong>${escapeHtml(currentUser.enrollment_no || currentUser.student_id)}</strong>
     `;
 
     await fetchComplaints();
@@ -166,11 +166,30 @@ function renderComplaints() {
     const isBreached = t.slaBreached && t.status !== 'Resolved';
     const cardBreachedClass = isBreached ? 'breached-card' : '';
 
+    let profRoleTitle = '🛠️ Assigned Professional:';
+    let inReviewMsg = `Supervisor <strong>${escapeHtml(t.assignedSupervisorName)}</strong> is reviewing and assigning a professional.`;
+    if (t.category === 'Food') {
+      profRoleTitle = '🍽️ Assigned Catering Staff / Food Inspector:';
+      inReviewMsg = `Supervisor <strong>${escapeHtml(t.assignedSupervisorName)}</strong> is reviewing and assigning mess inspection staff.`;
+    } else if (t.category === 'Discipline') {
+      profRoleTitle = '🛡️ Assigned Warden / Floor Proctor:';
+      inReviewMsg = `Supervisor <strong>${escapeHtml(t.assignedSupervisorName)}</strong> is reviewing and assigning a floor proctor / warden.`;
+    } else if (t.category === 'Plumbing') {
+      profRoleTitle = '🔧 Assigned Plumber:';
+      inReviewMsg = `Supervisor <strong>${escapeHtml(t.assignedSupervisorName)}</strong> is reviewing and assigning a plumber.`;
+    } else if (t.category === 'Carpentry') {
+      profRoleTitle = '🪚 Assigned Carpenter:';
+      inReviewMsg = `Supervisor <strong>${escapeHtml(t.assignedSupervisorName)}</strong> is reviewing and assigning a carpenter.`;
+    } else if (t.category === 'Electrical') {
+      profRoleTitle = '⚡ Assigned Electrical Technician:';
+      inReviewMsg = `Supervisor <strong>${escapeHtml(t.assignedSupervisorName)}</strong> is reviewing and assigning an electrician.`;
+    }
+
     let profHtml = '';
     if (t.assignedProfessional) {
       profHtml = `
         <div class="card-prof-box">
-          <div class="card-prof-title">🛠️ Assigned Field Professional:</div>
+          <div class="card-prof-title">${profRoleTitle}</div>
           <div class="card-prof-details">
             <strong>${escapeHtml(t.assignedProfessional.name)}</strong> &bull; Contact: <strong>${escapeHtml(t.assignedProfessional.phone)}</strong><br>
             <span style="font-size: 0.78rem; color: var(--slate-600);">Expected Visit: ${escapeHtml(t.assignedProfessional.expectedVisitTime)}</span>
@@ -182,7 +201,7 @@ function renderComplaints() {
         <div class="card-prof-box" style="background: var(--slate-50); border-color: var(--slate-200);">
           <div class="card-prof-title" style="color: var(--slate-600);">⏳ In Review with Supervisor:</div>
           <div style="font-size: 0.78rem; color: var(--slate-500);">
-            Supervisor <strong>${escapeHtml(t.assignedSupervisorName)}</strong> is reviewing and assigning a professional.
+            ${inReviewMsg}
           </div>
         </div>
       `;
@@ -201,6 +220,9 @@ function renderComplaints() {
             <span class="ticket-id">#${t.ticketNumber}</span>
           </div>
           <h3 class="card-title">${escapeHtml(t.title)}</h3>
+          <div style="font-size:0.75rem; color:var(--primary-700); font-weight:600; margin: 4px 0 8px 0;">
+            📍 ${escapeHtml(t.campus || 'Phase I')} &bull; ${escapeHtml(t.hostel)} &bull; Room ${escapeHtml(t.room)}
+          </div>
           <p class="card-desc">${escapeHtml(t.description)}</p>
           ${profHtml}
         </div>
@@ -291,16 +313,32 @@ async function openDetailModal(id) {
     document.getElementById('modalCategoryBadge').innerHTML = `${cat.icon} ${ticket.category}`;
     document.getElementById('modalTicketTitle').textContent = ticket.title;
     document.getElementById('modalTicketMeta').innerHTML = `
-      <strong>#${ticket.ticketNumber}</strong> &bull; Location: <strong>${ticket.hostel} - Room ${ticket.room}</strong> &bull; Priority: <strong>${ticket.priority}</strong>
+      <strong>#${ticket.ticketNumber}</strong> &bull; Location: <strong>${escapeHtml(ticket.campus || 'Phase I')} &bull; ${escapeHtml(ticket.hostel)} - Room ${escapeHtml(ticket.room)}</strong> &bull; Priority: <strong>${escapeHtml(ticket.priority)}</strong>
     `;
 
     document.getElementById('modalDescriptionBox').textContent = ticket.description;
 
     const profBox = document.getElementById('modalProfessionalBox');
+    const profTitleEl = document.getElementById('lblDetailAssignedProf');
+    if (profTitleEl) {
+      if (ticket.category === 'Food') profTitleEl.textContent = 'Assigned Catering Staff / Food Inspector';
+      else if (ticket.category === 'Discipline') profTitleEl.textContent = 'Assigned Hostel Warden / Floor Proctor';
+      else if (ticket.category === 'Plumbing') profTitleEl.textContent = 'Assigned Plumber';
+      else if (ticket.category === 'Carpentry') profTitleEl.textContent = 'Assigned Carpenter';
+      else profTitleEl.textContent = 'Assigned Electrical Technician';
+    }
+
+    let roleLabel = 'Field Professional';
+    if (ticket.category === 'Food') roleLabel = 'Catering Staff / Food Inspector';
+    else if (ticket.category === 'Discipline') roleLabel = 'Hostel Warden / Floor Proctor';
+    else if (ticket.category === 'Plumbing') roleLabel = 'Plumber';
+    else if (ticket.category === 'Carpentry') roleLabel = 'Carpenter';
+    else if (ticket.category === 'Electrical') roleLabel = 'Electrical Technician';
+
     if (ticket.assignedProfessional) {
       profBox.innerHTML = `
         <div style="font-weight:700; color:var(--primary-800); font-size:1rem;">
-          🛠️ ${escapeHtml(ticket.assignedProfessional.name)}
+          ${cat.icon} ${escapeHtml(ticket.assignedProfessional.name)} <span style="font-size:0.8rem; font-weight:600; color:var(--slate-500);">(${roleLabel})</span>
         </div>
         <div style="margin-top:0.35rem; font-size:0.88rem; color:var(--slate-700);">
           📞 Contact Mobile: <strong>${escapeHtml(ticket.assignedProfessional.phone)}</strong><br>
@@ -309,7 +347,13 @@ async function openDetailModal(id) {
         </div>
       `;
     } else {
-      profBox.innerHTML = `<div style="color:var(--slate-500); font-style:italic;">Supervisor ${escapeHtml(ticket.assignedSupervisorName)} is reviewing and assigning a field professional.</div>`;
+      let notAssignedMsg = `Supervisor ${escapeHtml(ticket.assignedSupervisorName)} is reviewing and assigning a field professional.`;
+      if (ticket.category === 'Food') notAssignedMsg = `Supervisor ${escapeHtml(ticket.assignedSupervisorName)} is reviewing and assigning catering staff / food inspector.`;
+      else if (ticket.category === 'Discipline') notAssignedMsg = `Supervisor ${escapeHtml(ticket.assignedSupervisorName)} is reviewing and assigning a floor proctor / warden.`;
+      else if (ticket.category === 'Plumbing') notAssignedMsg = `Supervisor ${escapeHtml(ticket.assignedSupervisorName)} is reviewing and assigning a plumber.`;
+      else if (ticket.category === 'Carpentry') notAssignedMsg = `Supervisor ${escapeHtml(ticket.assignedSupervisorName)} is reviewing and assigning a carpenter.`;
+      else if (ticket.category === 'Electrical') notAssignedMsg = `Supervisor ${escapeHtml(ticket.assignedSupervisorName)} is reviewing and assigning an electrical technician.`;
+      profBox.innerHTML = `<div style="color:var(--slate-500); font-style:italic;">${notAssignedMsg}</div>`;
     }
 
     const resSec = document.getElementById('modalResolutionSection');
@@ -331,13 +375,16 @@ async function openDetailModal(id) {
     document.getElementById('modalSlaDeadlineText').textContent = `Target SLA: ${new Date(ticket.deadline).toLocaleString()}`;
 
     const timelineList = document.getElementById('modalTimelineList');
-    timelineList.innerHTML = (ticket.timeline || []).map(tl => `
-      <div class="timeline-item">
-        <div class="timeline-time">${new Date(tl.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; ${new Date(tl.time).toLocaleDateString()}</div>
-        <div class="timeline-actor">${escapeHtml(tl.actor)}</div>
-        <div class="timeline-action">${escapeHtml(tl.action)}</div>
-      </div>
-    `).join('');
+    timelineList.innerHTML = (ticket.timeline || []).map(tl => {
+      const actionText = formatTimelineActionForUI(tl.action, ticket.category);
+      return `
+        <div class="timeline-item">
+          <div class="timeline-time">${new Date(tl.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; ${new Date(tl.time).toLocaleDateString()}</div>
+          <div class="timeline-actor">${escapeHtml(tl.actor)}</div>
+          <div class="timeline-action">${escapeHtml(actionText)}</div>
+        </div>
+      `;
+    }).join('');
 
     document.getElementById('ticketDetailModal').classList.add('active');
   } catch (err) {
@@ -355,7 +402,10 @@ async function openEmailOutbox() {
       <div class="outbox-item ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
         <span class="outbox-item-type" style="${em.type === 'SLA_BREACH_APOLOGY' ? 'color:#dc2626;' : 'color:#2563eb;'}">${em.type.replace(/_/g, ' ')}</span>
         <div class="outbox-item-subject">${escapeHtml(em.subject)}</div>
-        <div class="outbox-item-to">To: ${escapeHtml(em.to)}</div>
+        <div class="outbox-item-to" style="font-size:0.75rem; color:var(--slate-500); margin-top:3px;">
+          <span>From: <strong style="color:var(--primary-700);">${escapeHtml(em.from || 'hostel@iul.ac.in')}</strong></span><br>
+          <span>To: ${escapeHtml(em.to)}</span>
+        </div>
       </div>
     `).join('');
 
@@ -376,11 +426,16 @@ function renderEmailPreview(idx) {
   const preview = document.getElementById('emailOutboxPreview');
   const em = emails[idx];
   if (!preview || !em) return;
+  const fromAddr = em.from || 'hostel@iul.ac.in';
   preview.innerHTML = `
     <div style="border-bottom: 1px solid var(--slate-200); padding-bottom: 0.85rem; margin-bottom: 1rem;">
       <h4 style="font-size:1.1rem; color:var(--slate-900);">${escapeHtml(em.subject)}</h4>
-      <div style="font-size:0.8rem; color:var(--slate-500); margin-top:0.25rem;">
-        <strong>To:</strong> ${escapeHtml(em.to)} &bull; <strong>Sent:</strong> ${new Date(em.sentAt).toLocaleString()}
+      <div style="font-size:0.8rem; color:var(--slate-600); margin-top:0.35rem; display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center;">
+        <span><strong>From:</strong> <span style="color:var(--primary-700); font-weight:700;">${escapeHtml(fromAddr)}</span></span>
+        <span>&bull;</span>
+        <span><strong>To:</strong> ${escapeHtml(em.to)}</span>
+        <span>&bull;</span>
+        <span><strong>Sent:</strong> ${new Date(em.sentAt).toLocaleString()}</span>
       </div>
     </div>
     <div>${em.bodyHtml}</div>
@@ -390,4 +445,37 @@ function renderEmailPreview(idx) {
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+}
+
+function formatTimelineActionForUI(actionText, category) {
+  if (!actionText) return '';
+  let text = actionText;
+  const cat = (category || '').toLowerCase();
+
+  if (cat.includes('food')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned catering staff / food inspector:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Catering staff / food inspector assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'catering staff member');
+    text = text.replace(/\btechnicians?\b/gi, 'catering staff');
+  } else if (cat.includes('discipline')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned hostel warden / proctor:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Hostel warden / proctor assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'hostel warden / proctor');
+    text = text.replace(/\btechnicians?\b/gi, 'warden/proctor');
+  } else if (cat.includes('plumb')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned plumber:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Plumber assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'plumber');
+    text = text.replace(/\btechnicians?\b/gi, 'plumber');
+  } else if (cat.includes('carpent')) {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned carpenter:');
+    text = text.replace(/technician\s+assigned:?/gi, 'Carpenter assigned:');
+    text = text.replace(/\bfield\s+technician\b/gi, 'carpenter');
+    text = text.replace(/\btechnicians?\b/gi, 'carpenter');
+  } else if (cat.includes('elect')) {
+    text = text.replace(/Assigned\s+technician:?/gi, 'Assigned electrical technician:');
+  } else {
+    text = text.replace(/Assigned\s+(?:field\s+)?technician:?/gi, 'Assigned field professional:');
+  }
+  return text;
 }
