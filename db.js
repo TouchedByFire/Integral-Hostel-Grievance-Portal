@@ -179,11 +179,6 @@ async function initDatabase() {
       console.log('✓ Seeded available technicians.');
     }
 
-    // Ensure all technicians are Available for testing
-    try {
-      await pool.query("UPDATE technicians SET status = 'Available' WHERE status != 'Available'");
-    } catch (e) {}
-
     console.log('✓ MySQL schema & tables verified for Integral University.');
 
     // Seed / Ensure official Integral University staff profiles (5 Supervisors + Provost only, no dummy students)

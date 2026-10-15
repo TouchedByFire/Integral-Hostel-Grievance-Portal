@@ -412,29 +412,64 @@ function setupEventListeners() {
   }
 
   // Assign Modal
-  document.getElementById('btnCloseAssignModal').addEventListener('click', () => {
+  const btnCloseAssign = document.getElementById('btnCloseAssignModal');
+  if (btnCloseAssign) btnCloseAssign.addEventListener('click', () => {
     document.getElementById('assignProfessionalModal').classList.remove('active');
   });
-  document.getElementById('btnCancelAssign').addEventListener('click', () => {
+  const btnCancelAssign = document.getElementById('btnCancelAssign');
+  if (btnCancelAssign) btnCancelAssign.addEventListener('click', () => {
     document.getElementById('assignProfessionalModal').classList.remove('active');
   });
-  document.getElementById('assignProfessionalForm').addEventListener('submit', handleAssignProfessional);
+  const assignForm = document.getElementById('assignProfessionalForm');
+  if (assignForm) assignForm.addEventListener('submit', handleAssignProfessional);
 
   // Resolve Modal
-  document.getElementById('btnCloseResolveModal').addEventListener('click', () => {
+  const btnCloseResolve = document.getElementById('btnCloseResolveModal');
+  if (btnCloseResolve) btnCloseResolve.addEventListener('click', () => {
     document.getElementById('resolveTicketModal').classList.remove('active');
   });
-  document.getElementById('btnCancelResolve').addEventListener('click', () => {
+  const btnCancelResolve = document.getElementById('btnCancelResolve');
+  if (btnCancelResolve) btnCancelResolve.addEventListener('click', () => {
     document.getElementById('resolveTicketModal').classList.remove('active');
   });
-  document.getElementById('resolveTicketForm').addEventListener('submit', handleResolveTicket);
+  const resolveForm = document.getElementById('resolveTicketForm');
+  if (resolveForm) resolveForm.addEventListener('submit', handleResolveTicket);
 
   // Detail Modal Close
-  document.getElementById('btnCloseDetailModal').addEventListener('click', () => {
+  const btnCloseDetail = document.getElementById('btnCloseDetailModal');
+  if (btnCloseDetail) btnCloseDetail.addEventListener('click', () => {
     document.getElementById('ticketDetailModal').classList.remove('active');
   });
-  document.getElementById('btnCloseDetailModalBtn').addEventListener('click', () => {
+  const btnCloseDetailBtn = document.getElementById('btnCloseDetailModalBtn');
+  if (btnCloseDetailBtn) btnCloseDetailBtn.addEventListener('click', () => {
     document.getElementById('ticketDetailModal').classList.remove('active');
+  });
+
+  // Universal Event Delegation for Assign, Resolve, and View buttons (Table & Cards)
+  document.addEventListener('click', (e) => {
+    const btnAssign = e.target.closest('.btn-assign');
+    if (btnAssign) {
+      e.preventDefault();
+      const id = btnAssign.dataset.id;
+      if (id) openAssignModal(id);
+      return;
+    }
+
+    const btnResolve = e.target.closest('.btn-resolve');
+    if (btnResolve) {
+      e.preventDefault();
+      const id = btnResolve.dataset.id;
+      if (id) openResolveModal(id);
+      return;
+    }
+
+    const btnView = e.target.closest('.btn-view');
+    if (btnView) {
+      e.preventDefault();
+      const id = btnView.dataset.id;
+      if (id) openDetailModal(id);
+      return;
+    }
   });
 
   // Delete Technician Modal Listeners
@@ -590,7 +625,9 @@ function renderTable() {
   }
 
   // 1. Render Table Rows (Desktop / Wide screen)
-  const domainCfg = getDomainConfig(currentUser?.category);
+  const currentCategory = currentUser?.category || 'Electrical';
+  const domainCfg = getDomainConfig(currentCategory);
+  const cat = CATEGORIES[currentCategory] || { icon: '🛠️' };
 
   tbody.innerHTML = list.map(t => {
     const sla = calculateSla(t);
@@ -719,7 +756,7 @@ function renderTable() {
               <div>Student: <strong>${escapeHtml(t.studentName)}</strong></div>
             </div>
             <div class="provost-card-row">
-              <span>${cat.icon || '🛠️'}</span>
+              <span>${(CATEGORIES[t.category] || cat).icon || '🛠️'}</span>
               <div>${domainCfg.entityName}: ${profText}</div>
             </div>
 
@@ -740,9 +777,24 @@ function renderTable() {
   }
 
   // Bind click handlers for both views
-  document.querySelectorAll('.btn-assign').forEach(b => b.addEventListener('click', () => openAssignModal(b.dataset.id)));
-  document.querySelectorAll('.btn-resolve').forEach(b => b.addEventListener('click', () => openResolveModal(b.dataset.id)));
-  document.querySelectorAll('.btn-view').forEach(b => b.addEventListener('click', () => openDetailModal(b.dataset.id)));
+  document.querySelectorAll('.btn-assign').forEach(b => {
+    b.onclick = (e) => {
+      e.preventDefault();
+      openAssignModal(b.dataset.id);
+    };
+  });
+  document.querySelectorAll('.btn-resolve').forEach(b => {
+    b.onclick = (e) => {
+      e.preventDefault();
+      openResolveModal(b.dataset.id);
+    };
+  });
+  document.querySelectorAll('.btn-view').forEach(b => {
+    b.onclick = (e) => {
+      e.preventDefault();
+      openDetailModal(b.dataset.id);
+    };
+  });
 
   updateLedgerView();
 }
